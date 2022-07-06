@@ -108,7 +108,7 @@ try:
 except Exception as e:
     print(e)
 
-initialInput = 100
+initialInput = 150
 inputValue = initialInput
 inputHigh = 100
 inputLow = 5
