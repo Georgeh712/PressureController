@@ -44,10 +44,10 @@ def data_handler(temp):
     ax2.plot(mfcData)
     ax.scatter(len(pressureData)-1, pressureData[-1])
     ax.text(len(pressureData)-1, pressureData[-1]+2, "{:.2f}".format(pressureData[-1]))
-    ax.set_ylim(0,6)
+    ax.set_ylim(0,15)
     ax2.scatter(len(mfcData)-1, mfcData[-1])
     ax2.text(len(mfcData)-1, mfcData[-1]+2, "{:.2f}".format(mfcData[-1]))
-    ax2.set_ylim(0,6)
+    ax2.set_ylim(0,15)
 
 def calc_ma(num, ma):
     dLength = len(sensorData)-1
@@ -59,11 +59,11 @@ def calc_ma(num, ma):
 def counter_timer():
     global counter
     global inputValue
-    if counter == 15:
-        inputValue = 25
-    if counter == 100:
+    if counter == 20:
+        inputValue = inputHigh
+    if counter == 40:
         counter = 0
-        inputValue = 1
+        inputValue = inputLow
 
 def chart_gen(i):
     timeNow = datetime.datetime.now()
@@ -90,7 +90,7 @@ def chart_gen(i):
             print("Time: ", timeNow, "\t Pressure_Data: ", fNum, "\t MFC_Data", fNum2, "\t Input_Value: ", inputValue)
             insert_data(f, timeNow, temp, f2, num, num2)
             writeToArd(str(inputValue))
-            if get_counter() == 5:
+            if get_counter() == 15:
                 insert_data_2(temp)
             data_handler(temp)
         except Exception as e:
@@ -108,7 +108,10 @@ try:
 except Exception as e:
     print(e)
 
-inputValue = 1
+initialInput = 100
+inputValue = initialInput
+inputHigh = 100
+inputLow = 5
 counter = 0
 
 while (True):
