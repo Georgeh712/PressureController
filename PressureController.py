@@ -38,16 +38,17 @@ def data_handler(temp):
     mfcData.popleft()
     mfcData.append(temp[2])
     # clear axis
-    ax.cla()
+    ax[0].cla()
+    ax[1].cla()
     # plot
-    ax.plot(pressureData)
-    ax2.plot(mfcData)
-    ax.scatter(len(pressureData)-1, pressureData[-1])
-    ax.text(len(pressureData)-1, pressureData[-1]+2, "{:.2f}".format(pressureData[-1]))
-    ax.set_ylim(0,15)
-    ax2.scatter(len(mfcData)-1, mfcData[-1])
-    ax2.text(len(mfcData)-1, mfcData[-1]+2, "{:.2f}".format(mfcData[-1]))
-    ax2.set_ylim(0,15)
+    ax[0].plot(pressureData)
+    ax[1].plot(mfcData)
+    ax[0].scatter(len(pressureData)-1, pressureData[-1])
+    ax[0].text(len(pressureData)-1, pressureData[-1], "{:.2f}".format(pressureData[-1]))
+    ax[0].set_ylim(0,3)
+    ax[1].scatter(len(mfcData)-1, mfcData[-1])
+    ax[1].text(len(mfcData)-1, mfcData[-1], "{:.2f}".format(mfcData[-1]))
+    ax[1].set_ylim(0,15)
 
 def calc_ma(num, ma):
     dLength = len(sensorData)-1
@@ -59,12 +60,13 @@ def calc_ma(num, ma):
 def counter_timer():
     global counter
     global inputValue
-    if counter == 20:
+    if counter == switchHigh:
         inputValue = inputHigh
-    if counter == 40:
+    if counter == switchLow:
         counter = 0
         inputValue = inputLow
 
+#Charting loop - loops when recording and displaying results
 def chart_gen(i):
     timeNow = datetime.datetime.now()
     line = ser.readline()   # read a byte string
@@ -103,57 +105,75 @@ def writeToArd(x):
 def joiner(fig):
     return FuncAnimation(fig, chart_gen, interval=0)
 
+def modePicker():
+    global initialInput, inputValue, inputHigh, inputLow
+    if input("Run Continuous Mode or Variable?  Enter C or V: ") == "V":
+        initialInput = 150
+        inputValue = initialInput
+        inputHigh = 100
+        inputLow = 5
+
+#Connection to Arduino
 try:
     ser = serial.Serial('COM5', 9600, timeout=1)
 except Exception as e:
     print(e)
 
-initialInput = 150
+continous = 255
+#Initial Variables
+initialInput = continous
+switchHigh = 20
+switchLow = 40
 inputValue = initialInput
-inputHigh = 100
-inputLow = 5
+inputHigh = continous
+inputLow = continous
 counter = 0
 
-while (True):
-    print("\nProgram Started...\n")
-    try:
-        start = input("Run recorder? Y/N: ")
-        if start == "y" or start == "Y":
-            header = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'InputMFCValue']
-            f = open('Results.csv', 'w', newline='')
-            r = open('ResultsCondensed.csv', 'w', newline='')
-            writer = csv.writer(f)
-            writer2 = csv.writer(r)
-            writer.writerow(header)
-            writer2.writerow(header)
+#Main Loop
+if __name__ == "__main__":
+    while (True):
+        print("\nProgram Started...\n")
+        try:
+            start = input("Run recorder? Y/N: ")
+            if start == "y" or start == "Y":
+                modePicker()
+                header = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'InputMFCValue']
+                f = open('Results.csv', 'w', newline='')
+                r = open('ResultsCondensed.csv', 'w', newline='')
+                writer = csv.writer(f)
+                writer2 = csv.writer(r)
+                writer.writerow(header)
+                writer2.writerow(header)
 
-            counter = 0
-            moving_average = 1
-            gain = 1.25
-            offset = -1
-            argonCorrection = 1.18
-            sensorData = []
-            timeData = []
-            temp = []
+                counter = 0
+                moving_average = 1
+                gain = 1.25
+                offset = -1
+                argonCorrection = 1.18
+                sensorData = []
+                timeData = []
+                temp = []
 
-            # start collections with zeros
-            pressureData = collections.deque(np.zeros(500))
-            mfcData = collections.deque(np.zeros(500))
-            # define and adjust figure
-            fig = plt.figure(figsize=(10,5), facecolor='#DEDEDE')
-            ax = plt.subplot()
-            ax2 = plt.subplot()
-            ax.set_facecolor('#DEDEDE')
-            ax2.set_facecolor('#DEDEDE')
+                # start collections with zeros
+                pressureData = collections.deque(np.zeros(500))
+                mfcData = collections.deque(np.zeros(500))
+                # define and adjust figure
+                #fig = plt.figure(figsize=(10,5), facecolor='#DEDEDE')
+                fig, ax = plt.subplots(2, figsize=(15,5))
+                #ax = plt.subplot()
+                #ax2 = plt.subplot()
+                ax[0].set_facecolor('#DEDEDE')
+                ax[1].set_facecolor('#DEDEDE')
 
-            ani = joiner(fig)
-            plt.show()
+                ani = joiner(fig)
+                plt.show()
 
-            ser.close()
-            # close csv file
-            f.close()
-        if start == "n" or start == "N":
+                ser.close()
+                # close csv file
+                f.close()
+                r.close()
+            if start == "n" or start == "N":
+                exit(0)
+        except Exception as e:
+            print(e)
             exit(0)
-    except Exception as e:
-        print(e)
-        exit(0)
