@@ -97,7 +97,6 @@ def chart_gen(i):
             data_handler(temp)
         except Exception as e:
             print(e)
-    #print("Counter: ", get_counter())
 
 def writeToArd(x):
     ser.write(x.encode())
@@ -169,10 +168,7 @@ if __name__ == "__main__":
                 pressureData = collections.deque(np.zeros(500))
                 mfcData = collections.deque(np.zeros(500))
                 # define and adjust figure
-                #fig = plt.figure(figsize=(10,5), facecolor='#DEDEDE')
                 fig, ax = plt.subplots(2, figsize=(15,5))
-                #ax = plt.subplot()
-                #ax2 = plt.subplot()
                 ax[0].set_facecolor('#DEDEDE')
                 ax[1].set_facecolor('#DEDEDE')
 
