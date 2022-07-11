@@ -106,16 +106,23 @@ def joiner(fig):
     return FuncAnimation(fig, chart_gen, interval=0)
 
 def modePicker():
-    global initialInput, inputValue, inputHigh, inputLow, continous
-    if input("Run Continuous Mode or Variable?  Enter C or V: ") == "V":
+    global initialInput, inputValue, inputHigh, inputLow, continuous
+    corV = input("Run Continuous Mode or Variable?  Enter C or V: ")
+    if corV == "V":
         iI = input("Initial Flow: ")
         iH = input("High Flow: ")
         iL = input("Low Flow: ")
-        initialInput = iI
+        initialInput = float(iI) * 17
         inputValue = initialInput
-        inputHigh = iH
-        inputLow = iL
-    continous = input("Continuous Flow: ")
+        inputHigh = float(iH) * 17
+        inputLow = float(iL) * 17
+    elif corV == "C":
+        continuous = input("Continuous Flow: ")
+        continuous = float(continuous) * 17
+        inputHigh = continuous
+        inputLow = continuous
+        initialInput = continuous
+        inputValue = initialInput
 
 #Connection to Arduino
 try:
@@ -123,14 +130,14 @@ try:
 except Exception as e:
     print(e)
 
-continous = 255
+continuous = 255
 #Initial Variables
-initialInput = continous
+initialInput = continuous
 switchHigh = 20
 switchLow = 40
 inputValue = initialInput
-inputHigh = continous
-inputLow = continous
+inputHigh = continuous
+inputLow = continuous
 counter = 0
 
 #Main Loop
