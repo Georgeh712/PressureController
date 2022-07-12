@@ -8,9 +8,9 @@ from matplotlib.animation import FuncAnimation
 import psutil
 import collections
 from multiprocessing import Process
+from Logs import Log
 
 #Controller for argon pneumatics system for level measurement
-
 def get_counter():
     return counter
 
@@ -98,6 +98,7 @@ def chart_gen(i):
             data_handler(temp)
         except Exception as e:
             print(e)
+            logFile.sendError(e)
 
 def writeToArd(x):
     ser.write(x.encode())
@@ -124,11 +125,16 @@ def modePicker():
         initialInput = continuous
         inputValue = initialInput
 
+#Start log file        
+startTime = datetime.datetime.now()
+logFile = Log(str(startTime))
+
 #Connection to Arduino
 try:
     ser = serial.Serial('COM5', 9600, timeout=1)
 except Exception as e:
     print(e)
+    logFile.sendError(e)
 
 continuous = 255
 #Initial Variables
@@ -184,4 +190,5 @@ if __name__ == "__main__":
                 exit(0)
         except Exception as e:
             print(e)
+            logFile.sendError(e)
             exit(0)
