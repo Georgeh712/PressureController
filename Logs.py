@@ -16,4 +16,8 @@ class Log:
 
     def sendError(self, error):
         timeNow = datetime.datetime.now()
-        self.f.write(str(timeNow)[0:19] + " " + str(error) + "\n")
+        self.f.write(str(timeNow)[0:19] + " ERROR:  " + str(error) + "\n")
+
+    def sendNotice(self, notice):
+        timeNow = datetime.datetime.now()
+        self.f.write(str(timeNow)[0:19] + " NOTICE:  " + str(notice) + "\n")

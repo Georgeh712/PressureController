@@ -90,7 +90,7 @@ def chart_gen(i):
             f2 = (num2 * (5.0 / 1023.0)) * 3
             fNum = "{:.2f}".format(f)
             fNum2 = "{:.2f}".format(f2)
-            print("Time: ", timeNow, "\t Pressure_Data: ", fNum, "\t MFC_Data", fNum2, "\t Input_Value: ", inputValue)
+            print("Time: ", timeNow, "\t Pressure_Data: ", fNum, "\t\t MFC_Data", fNum2, "\t\t Input_Value: ", (inputValue/17))
             insert_data(f, timeNow, temp, f2, num, num2)
             writeToArd(str(inputValue))
             if get_counter() == 15:
@@ -117,6 +117,7 @@ def modePicker():
         inputValue = initialInput
         inputHigh = float(iH) * 17
         inputLow = float(iL) * 17
+        logFile.sendNotice("Variable- InitialValue: " + str(iI) + " InputHigh: " + str(iH) + " InputLow: " + str(iL))
     elif corV == "C":
         continuous = input("Continuous Flow: ")
         continuous = float(continuous) * 17
@@ -124,6 +125,7 @@ def modePicker():
         inputLow = continuous
         initialInput = continuous
         inputValue = initialInput
+        logFile.sendNotice("Continuous- InitialValue: " + str(iI) + " InputHigh: " + str(iH) + " InputLow: " + str(iL))
 
 #Start log file        
 startTime = datetime.datetime.now()
@@ -164,8 +166,8 @@ if __name__ == "__main__":
 
                 counter = 0
                 moving_average = 1
-                gain = 1.25
-                offset = -1
+                gain = 1.5576
+                offset = -1.79
                 argonCorrection = 1.18
                 sensorData = []
                 timeData = []
