@@ -63,9 +63,11 @@ def counter_timer():
     global inputValue
     if counter == switchHigh:
         inputValue = inputHigh
+        logFile.sendNotice("Switched High")
     if counter == switchLow:
         counter = 0
         inputValue = inputLow
+        logFile.sendNotice("Switched Low")
 
 #Charting loop - loops when recording and displaying results
 def chart_gen(i):
@@ -125,7 +127,7 @@ def modePicker():
         inputLow = continuous
         initialInput = continuous
         inputValue = initialInput
-        logFile.sendNotice("Continuous- InitialValue: " + str(iI) + " InputHigh: " + str(iH) + " InputLow: " + str(iL))
+        logFile.sendNotice("Continuous- InitialValue: " + str(continuous) + " InputHigh: " + str(continuous) + " InputLow: " + str(continuous))
 
 #Start log file        
 startTime = datetime.datetime.now()
@@ -172,6 +174,8 @@ if __name__ == "__main__":
                 sensorData = []
                 timeData = []
                 temp = []
+
+                logFile.sendNotice("MA: " + str(moving_average) + " Gain: " + str(gain) + " Offset: " + str(offset))
 
                 # start collections with zeros
                 pressureData = collections.deque(np.zeros(500))
