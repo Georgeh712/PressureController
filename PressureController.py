@@ -138,11 +138,12 @@ def modePicker():
     elif corV == "C":
         continuous = input("Continuous Flow: ")
         continuous = float(continuous) * 17
+        contFlow = continuous/17
         inputHigh = continuous
         inputLow = continuous
         initialInput = continuous
         inputValue = initialInput
-        logFile.sendNotice("Continuous- InitialValue: " + str(continuous) + " InputHigh: " + str(continuous) + " InputLow: " + str(continuous))
+        logFile.sendNotice("Continuous- InitialValue: " + str(contFlow) + " InputHigh: " + str(contFlow) + " InputLow: " + str(contFlow))
 
 #Start log file        
 startTime = datetime.datetime.now()
