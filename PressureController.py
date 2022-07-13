@@ -11,6 +11,8 @@ from multiprocessing import Process
 from Logs import Log
 
 #Controller for argon pneumatics system for level measurement
+
+
 def get_counter():
     return counter
 
@@ -220,6 +222,7 @@ if __name__ == "__main__":
                 f.close()
                 r.close()
             if start == "n" or start == "N":
+                ser.close()
                 exit(0)
 
         except Exception as e:
