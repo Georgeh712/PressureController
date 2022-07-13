@@ -12,14 +12,16 @@ from Logs import Log
 
 #Controller for argon pneumatics system for level measurement
 
-
+#Get counter
 def get_counter():
     return counter
 
+#Set counter
 def set_counter(updateCount):
     global counter
     counter = counter + updateCount
 
+#Insert data into csv file
 def insert_data(f, timeNow, temp, f2, num, num2):
     sensorData.append(f)
     timeData.append(timeNow)
@@ -31,9 +33,11 @@ def insert_data(f, timeNow, temp, f2, num, num2):
     temp.append(inputValue)
     writer.writerow(temp) # write to csv
 
+#Insert data for condensed csv file
 def insert_data_2(temp):
     writer2.writerow(temp) # write to csv
 
+#Set data on subplots
 def data_handler(temp):
     # get data
     pressureData.popleft()
@@ -53,6 +57,7 @@ def data_handler(temp):
     ax[1].text(len(mfcData)-1, mfcData[-1], "{:.2f}".format(mfcData[-1]))
     ax[1].set_ylim(0,15)
 
+#Moving average calculator
 def calc_ma(num, ma):
     dLength = len(sensorData)-1
     for n in range(ma-1):
@@ -60,6 +65,7 @@ def calc_ma(num, ma):
     numMa = num/ma
     return numMa
 
+#Counter for switching between high and low flow
 def counter_timer():
     global counter
     global inputValue
@@ -119,12 +125,15 @@ def chart_gen(i):
             print(e)
             logFile.sendError(e)
 
+#Write to arduino
 def writeToArd(x):
     ser.write(x.encode())
 
+#Start chart animation
 def joiner(fig):
     return FuncAnimation(fig, chart_gen, interval=0)
 
+#Define variables for continous flow mode and variable flow mode
 def modePicker():
     global initialInput, inputValue, inputHigh, inputLow, continuous
     corV = input("Run Continuous Mode or Variable?  Enter C or V: ")
