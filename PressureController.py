@@ -75,29 +75,44 @@ def chart_gen(i):
     line = ser.readline()   # read a byte string
     line2 = ser.readline() # read mfc
     temp = []
+
+    #Prime Counter
     set_counter(1)
     counter_timer()
+
+    #Chart loop
     if line:
         try:
             string = line.decode().strip()  # convert the byte string to a unicode string
             string2 = line2.decode().strip()
             num = int(string) # convert the unicode string to an int
             num2 = int(string2)
+
+            #Moving Average
             dLength = len(sensorData)
             if dLength > moving_average:
                 num = calc_ma(num, moving_average)
+
+            #Number Formatting
             f = (num * (5.0 / 1023.0))
             f += offset
             f *= gain
             f2 = (num2 * (5.0 / 1023.0)) * 3
             fNum = "{:.2f}".format(f)
             fNum2 = "{:.2f}".format(f2)
+
+            #Data printing to terminal, saving to csv and writing to arduino
             print("Time: ", timeNow, "\t Pressure_Data: ", fNum, "\t\t MFC_Data", fNum2, "\t\t Input_Value: ", (inputValue/17))
             insert_data(f, timeNow, temp, f2, num, num2)
             writeToArd(str(inputValue))
+
+            #Variable low flow data storing
             if get_counter() == 15:
                 insert_data_2(temp)
+            
+            #Normal data storing
             data_handler(temp)
+
         except Exception as e:
             print(e)
             logFile.sendError(e)
@@ -159,8 +174,15 @@ if __name__ == "__main__":
             if start == "y" or start == "Y":
                 modePicker()
                 header = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'InputMFCValue']
-                f = open('Results.csv', 'w', newline='')
-                r = open('ResultsCondensed.csv', 'w', newline='')
+
+                fileNameDate = str(startTime)[0:10]
+                hour = str(startTime)[11:13]
+                mins = str(startTime)[14:16]
+                fileNameLong = "Results/Results" + fileNameDate + hour + mins + ".csv"
+                fileNameShort = "Results/ResultsCondensed" + fileNameDate + hour + mins + ".csv"
+
+                f = open(fileNameLong, 'x', newline='')
+                r = open(fileNameShort, 'x', newline='')
                 writer = csv.writer(f)
                 writer2 = csv.writer(r)
                 writer.writerow(header)
@@ -180,20 +202,25 @@ if __name__ == "__main__":
                 # start collections with zeros
                 pressureData = collections.deque(np.zeros(500))
                 mfcData = collections.deque(np.zeros(500))
+
                 # define and adjust figure
                 fig, ax = plt.subplots(2, figsize=(15,5))
                 ax[0].set_facecolor('#DEDEDE')
                 ax[1].set_facecolor('#DEDEDE')
 
+                #Declare animation, show plot
                 ani = joiner(fig)
                 plt.show()
-
+                
+                #Close serial connection to arduino
                 ser.close()
+
                 # close csv file
                 f.close()
                 r.close()
             if start == "n" or start == "N":
                 exit(0)
+
         except Exception as e:
             print(e)
             logFile.sendError(e)
