@@ -8,8 +8,8 @@ int sensorValue; // an integer variable to store the potentiometer reading
 
 void setup() { // this function runs once when the sketch starts up
   // initialize serial communication :
-  Serial.begin(9600);
-  analogReadResolution(12)
+  Serial.begin(250000);
+  Serial.setTimeout(50);
 }
 
 void loop() { // this loop runs repeatedly after setup() finishes
@@ -19,7 +19,7 @@ void loop() { // this loop runs repeatedly after setup() finishes
   Serial.println(sensorValue);
 
   int x = Serial.readString().toInt();
-  analogWrite(outputPin, x);
+  //analogWrite(outputPin, x);
 
   delay (50); // Pause in milliseconds before next reading
 }

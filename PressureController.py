@@ -182,7 +182,7 @@ logFile = Log(str(startTime))
 
 #Connection to Arduino
 try:
-    ser = serial.Serial('COM5', 9600, timeout=1)
+    ser = serial.Serial('COM5', 250000, timeout=1)
 except Exception as e:
     print(e)
     logFile.sendError(e)
@@ -209,11 +209,11 @@ if __name__ == "__main__":
                 modePicker()
                 header = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'MAPressureData', 'InputMFCValue', 'Height']
 
-                fileNameDate = str(startTime)[0:10]
+                fileNameDate = str(input("Enter File Name: "))
                 hour = str(startTime)[11:13]
                 mins = str(startTime)[14:16]
-                fileNameLong = "Results/Results" + fileNameDate + hour + mins + ".csv"
-                fileNameShort = "Results/ResultsCondensed" + fileNameDate + hour + mins + ".csv"
+                fileNameLong = "Results/" + fileNameDate + "_" + hour + "-" + mins + ".csv"
+                fileNameShort = "ResultsCondensed/" + fileNameDate + "_" + hour + "-" + mins + ".csv"
 
                 f = open(fileNameLong, 'x', newline='')
                 r = open(fileNameShort, 'x', newline='')
