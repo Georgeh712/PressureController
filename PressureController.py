@@ -11,7 +11,7 @@ from Logs import Log
 
 #Controller for argon pneumatics system for level measurement
 
-maxPressure = 3
+maxPressure = 10
 
 #Get counter
 def get_counter():
@@ -223,9 +223,9 @@ if __name__ == "__main__":
                 writer2.writerow(header)
 
                 counter = 0
-                moving_average = 3
-                gain = 1.5576
-                offset = -1.79
+                moving_average = 5
+                gain = 2.08
+                offset = -1.17
                 argonCorrection = 1.18
                 sensorData = []
                 timeData = []

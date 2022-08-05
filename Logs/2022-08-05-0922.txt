@@ -1,0 +1,3 @@
+Log file started: 2022-08-05 09:22:06.933976
+2022-08-05 09:22:34 NOTICE:  Continuous- InitialValue: 5.0 InputHigh: 5.0 InputLow: 5.0
+2022-08-05 09:22:37 NOTICE:  MA: 5 Gain: 1 Offset: -1.17
