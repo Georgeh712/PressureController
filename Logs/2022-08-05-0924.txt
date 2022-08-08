@@ -1,2 +1,0 @@
-Log file started: 2022-08-05 09:24:01.432980
-2022-08-05 09:24:12 NOTICE:  MA: 5 Gain: 2.08 Offset: -1.17

@@ -1,4 +1,0 @@
-Log file started: 2022-08-05 09:27:16.281024
-2022-08-05 09:27:32 NOTICE:  Continuous- InitialValue: 15.0 InputHigh: 15.0 InputLow: 15.0
-2022-08-05 09:27:33 NOTICE:  MA: 5 Gain: 2.08 Offset: -1.17
-2022-08-05 09:27:34 ERROR:  invalid literal for int() with base 10: ''

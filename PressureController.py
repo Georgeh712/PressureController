@@ -103,11 +103,11 @@ def chart_gen(i):
             numMA = num
 
             #Number Formatting
-            f = (num * (5.0 / 1023.0))
+            f = (num * (3.355 / 65535.0))
             f += offset
             f *= gain
-            f2 = (num2 * (5.0 / 1023.0)) * 3
-            fMA = (numMA * (5.0 / 1023.0))
+            f2 = (num2 * (5 / 65535.0)) * 3
+            fMA = (numMA * (3.355 / 65535.0))
             fMA += offset
             fMA *= gain
 
@@ -125,7 +125,7 @@ def chart_gen(i):
             height = (f*100000)/(1000*7*9.81)
 
             #Data printing to terminal, saving to csv and writing to arduino
-            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/17), "\t\t Height: ", height)
+            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/25.5), "\t\t Height: ", height)
             insert_data(f, timeNow, temp, f2, num, num2, fMA, height)
             writeToArd(str(inputValue))
 
@@ -157,15 +157,15 @@ def modePicker():
         iI = input("Initial Flow: ")
         iH = input("High Flow: ")
         iL = input("Low Flow: ")
-        initialInput = float(iI) * 17
+        initialInput = float(iI) * 25.5
         inputValue = initialInput
-        inputHigh = float(iH) * 17
-        inputLow = float(iL) * 17
+        inputHigh = float(iH) * 25.5
+        inputLow = float(iL) * 25.5
         logFile.sendNotice("Variable- InitialValue: " + str(iI) + " InputHigh: " + str(iH) + " InputLow: " + str(iL))
     elif corV == "C" or corV == "c":
         continuous = input("Continuous Flow: ")
-        continuous = float(continuous) * 17
-        contFlow = continuous/17
+        continuous = float(continuous) * 25.5
+        contFlow = continuous/25.5
         inputHigh = continuous
         inputLow = continuous
         initialInput = continuous
@@ -182,7 +182,7 @@ logFile = Log(str(startTime))
 
 #Connection to Arduino
 try:
-    ser = serial.Serial('COM5', 250000, timeout=1)
+    ser = serial.Serial('COM12', 250000, timeout=1)
 except Exception as e:
     print(e)
     logFile.sendError(e)
@@ -224,8 +224,8 @@ if __name__ == "__main__":
 
                 counter = 0
                 moving_average = 5
-                gain = 2.08
-                offset = -1.17
+                gain = 2.404
+                offset = -1.28
                 argonCorrection = 1.18
                 sensorData = []
                 timeData = []
