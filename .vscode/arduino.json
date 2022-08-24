@@ -1,0 +1,5 @@
+{
+    "board": "arduino:mbed_portenta:envie_m7",
+    "configuration": "split=50_50,security=none",
+    "port": "COM12"
+}
