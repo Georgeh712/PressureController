@@ -1,0 +1,5 @@
+Log file started: 2022-08-22 11:37:11.430098
+2022-08-22 11:37:11 ERROR:  could not open port 'COM12': PermissionError(13, 'Access is denied.', None, 5)
+2022-08-22 11:37:16 NOTICE:  Continuous- InitialValue: 2.0 InputHigh: 2.0 InputLow: 2.0
+2022-08-22 11:37:20 NOTICE:  MA: 5 Gain: 2.404 Offset: -1.28
+2022-08-22 11:37:47 ERROR:  name 'ser' is not defined

@@ -11,7 +11,8 @@ from Logs import Log
 
 #Controller for argon pneumatics system for level measurement
 
-maxPressure = 10
+maxPressure = 4
+prevEMA = 0.00
 
 #Get counter
 def get_counter():
@@ -56,19 +57,18 @@ def data_handler(temp):
     ax[0].plot(pressureDataMA)
     ax[1].plot(mfcData)
     ax[0].scatter(len(pressureData)-1, pressureData[-1])
-    ax[0].text(len(pressureData)-1, pressureData[-1], "{:.2f}".format(pressureData[-1]))
+    ax[0].text(len(pressureData)-1, pressureData[-1], "{:.3f}".format(pressureData[-1]))
     ax[0].set_ylim(0,(pMax + (pMax*0.05)))
     ax[1].scatter(len(mfcData)-1, mfcData[-1])
-    ax[1].text(len(mfcData)-1, mfcData[-1], "{:.2f}".format(mfcData[-1]))
+    ax[1].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
     ax[1].set_ylim(0,15)
 
 #Moving average calculator
 def calc_ma(num, ma):
-    dLength = len(sensorData)-1
-    for n in range(ma-1):
-        num += sensorData[dLength-(n+1)]
-    numMa = num/ma
-    return numMa
+    global prevEMA
+    ema = (alpha*num) + ((1-alpha) * prevEMA)
+    prevEMA = ema
+    return ema
 
 #Counter for switching between high and low flow
 def counter_timer():
@@ -118,14 +118,15 @@ def chart_gen(i):
             
             pressureSafety(f)
 
-            fNum = "{:.2f}".format(f)
-            fNum2 = "{:.2f}".format(f2)
-            fNumMa = "{:.2f}".format(fMA)
+            fNum = "{:.3f}".format(f)
+            fNum2 = "{:.3f}".format(f2)
+            fNumMa = "{:.3f}".format(fMA)
 
-            height = (f*100000)/(1000*7*9.81)
+            height = (fMA*100000)/(1000*7*9.81)
+            height = "{:.3f}".format(height)
 
             #Data printing to terminal, saving to csv and writing to arduino
-            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/25.5), "\t\t Height: ", height)
+            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/25.5), "\t\t Depth: ", height)
             insert_data(f, timeNow, temp, f2, num, num2, fMA, height)
             writeToArd(str(inputValue))
 
@@ -223,7 +224,8 @@ if __name__ == "__main__":
                 writer2.writerow(header)
 
                 counter = 0
-                moving_average = 5
+                moving_average = 50
+                alpha = (2/(moving_average + 1))
                 gain = 2.404
                 offset = -1.28
                 argonCorrection = 1.18
