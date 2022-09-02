@@ -11,7 +11,7 @@ from Logs import Log
 
 #Controller for argon pneumatics system for level measurement
 
-maxPressure = 6
+maxPressure = 2.5 #DO NOT CHANGE
 prevEMA = 0.00
 
 #Get counter
@@ -51,6 +51,7 @@ def data_handler(temp):
     ax[1].cla()
 
     pMax = np.max(pressureData)
+    pMin = np.min(pressureData)
 
     # plot
     ax[0].plot(pressureData)
@@ -58,7 +59,7 @@ def data_handler(temp):
     ax[1].plot(mfcData)
     ax[0].scatter(len(pressureData)-1, pressureData[-1])
     ax[0].text(len(pressureData)-1, pressureData[-1], "{:.3f}".format(pressureData[-1]))
-    ax[0].set_ylim(0,(pMax + (pMax*0.05)))
+    ax[0].set_ylim((pMin*1.05),(pMax*1.05))
     ax[1].scatter(len(mfcData)-1, mfcData[-1])
     ax[1].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
     ax[1].set_ylim(0,15)
@@ -102,12 +103,17 @@ def chart_gen(i):
             num2 = int(string2)
             numMA = num
 
+            maxV = 3.1 #Maximum voltage for pins on board
+            bitNum = 65535 #Number of bits for analog input
+            maxP = 5 #Max Pressure
+            bitRatio = maxV/bitNum
+
             #Number Formatting
-            f = (num * (3.355 / 65535.0))
+            f = (num * (bitRatio))
             f += offset
             f *= gain
-            f2 = (num2 * (5 / 65535.0)) * 3
-            fMA = (numMA * (3.355 / 65535.0))
+            f2 = (num2 * (bitRatio)) * maxP/(2*maxV)
+            fMA = (numMA * (bitRatio))
             fMA += offset
             fMA *= gain
 
@@ -126,7 +132,7 @@ def chart_gen(i):
             height = "{:.3f}".format(height)
 
             #Data printing to terminal, saving to csv and writing to arduino
-            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/25.5), "\t\t Depth: ", height)
+            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/27.13), "\t\t Depth: ", height)
             insert_data(f, timeNow, temp, f2, num, num2, fMA, height)
             writeToArd(str(inputValue))
 
@@ -158,15 +164,15 @@ def modePicker():
         iI = input("Initial Flow: ")
         iH = input("High Flow: ")
         iL = input("Low Flow: ")
-        initialInput = float(iI) * 25.5
+        initialInput = float(iI) * 27.13
         inputValue = initialInput
-        inputHigh = float(iH) * 25.5
-        inputLow = float(iL) * 25.5
+        inputHigh = float(iH) * 27.13
+        inputLow = float(iL) * 27.13
         logFile.sendNotice("Variable- InitialValue: " + str(iI) + " InputHigh: " + str(iH) + " InputLow: " + str(iL))
     elif corV == "C" or corV == "c":
         continuous = input("Continuous Flow: ")
-        continuous = float(continuous) * 25.5
-        contFlow = continuous/25.5
+        continuous = float(continuous) * 27.13
+        contFlow = continuous/27.13
         inputHigh = continuous
         inputLow = continuous
         initialInput = continuous
@@ -224,10 +230,10 @@ if __name__ == "__main__":
                 writer2.writerow(header)
 
                 counter = 0
-                moving_average = 40
+                moving_average = 100
                 alpha = (2/(moving_average + 1))
-                gain = 2.404
-                offset = -1.28
+                offset = -1.792377686
+                gain = 5/(3.1+offset)
                 argonCorrection = 1.18
                 sensorData = []
                 timeData = []
