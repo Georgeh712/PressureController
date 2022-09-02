@@ -132,7 +132,7 @@ def chart_gen(i):
             height = "{:.3f}".format(height)
 
             #Data printing to terminal, saving to csv and writing to arduino
-            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/27.13), "\t\t Depth: ", height)
+            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/bitConversion), "\t\t Depth: ", height)
             insert_data(f, timeNow, temp, f2, num, num2, fMA, height)
             writeToArd(str(inputValue))
 
@@ -164,15 +164,17 @@ def modePicker():
         iI = input("Initial Flow: ")
         iH = input("High Flow: ")
         iL = input("Low Flow: ")
-        initialInput = float(iI) * 27.13
+        maxFlow = 9.42
+        bitConversion = 255 / maxFlow
+        initialInput = float(iI) * bitConversion
         inputValue = initialInput
-        inputHigh = float(iH) * 27.13
-        inputLow = float(iL) * 27.13
+        inputHigh = float(iH) * bitConversion
+        inputLow = float(iL) * bitConversion
         logFile.sendNotice("Variable- InitialValue: " + str(iI) + " InputHigh: " + str(iH) + " InputLow: " + str(iL))
     elif corV == "C" or corV == "c":
         continuous = input("Continuous Flow: ")
-        continuous = float(continuous) * 27.13
-        contFlow = continuous/27.13
+        continuous = float(continuous) * bitConversion
+        contFlow = continuous/bitConversion
         inputHigh = continuous
         inputLow = continuous
         initialInput = continuous
