@@ -11,7 +11,7 @@ from Logs import Log
 
 #Controller for argon pneumatics system for level measurement
 
-maxPressure = 4
+maxPressure = 6
 prevEMA = 0.00
 
 #Get counter
@@ -224,7 +224,7 @@ if __name__ == "__main__":
                 writer2.writerow(header)
 
                 counter = 0
-                moving_average = 50
+                moving_average = 40
                 alpha = (2/(moving_average + 1))
                 gain = 2.404
                 offset = -1.28
