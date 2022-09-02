@@ -132,7 +132,7 @@ def chart_gen(i):
             height = "{:.3f}".format(height)
 
             #Data printing to terminal, saving to csv and writing to arduino
-            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/25.5), "\t\t Depth: ", height)
+            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/27.13), "\t\t Depth: ", height)
             insert_data(f, timeNow, temp, f2, num, num2, fMA, height)
             writeToArd(str(inputValue))
 
@@ -164,15 +164,15 @@ def modePicker():
         iI = input("Initial Flow: ")
         iH = input("High Flow: ")
         iL = input("Low Flow: ")
-        initialInput = float(iI) * 25.5
+        initialInput = float(iI) * 27.13
         inputValue = initialInput
-        inputHigh = float(iH) * 25.5
-        inputLow = float(iL) * 25.5
+        inputHigh = float(iH) * 27.13
+        inputLow = float(iL) * 27.13
         logFile.sendNotice("Variable- InitialValue: " + str(iI) + " InputHigh: " + str(iH) + " InputLow: " + str(iL))
     elif corV == "C" or corV == "c":
         continuous = input("Continuous Flow: ")
-        continuous = float(continuous) * 25.5
-        contFlow = continuous/25.5
+        continuous = float(continuous) * 27.13
+        contFlow = continuous/27.13
         inputHigh = continuous
         inputLow = continuous
         initialInput = continuous
@@ -230,10 +230,10 @@ if __name__ == "__main__":
                 writer2.writerow(header)
 
                 counter = 0
-                moving_average = 40
+                moving_average = 100
                 alpha = (2/(moving_average + 1))
-                gain = 2.404
-                offset = -1.28
+                offset = -1.792377686
+                gain = 5/(3.1+offset)
                 argonCorrection = 1.18
                 sensorData = []
                 timeData = []
