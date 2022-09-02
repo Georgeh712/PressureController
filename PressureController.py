@@ -11,7 +11,7 @@ from Logs import Log
 
 #Controller for argon pneumatics system for level measurement
 
-maxPressure = 6
+maxPressure = 2.5 #DO NOT CHANGE
 prevEMA = 0.00
 
 #Get counter
@@ -51,6 +51,7 @@ def data_handler(temp):
     ax[1].cla()
 
     pMax = np.max(pressureData)
+    pMin = np.min(pressureData)
 
     # plot
     ax[0].plot(pressureData)
@@ -58,7 +59,7 @@ def data_handler(temp):
     ax[1].plot(mfcData)
     ax[0].scatter(len(pressureData)-1, pressureData[-1])
     ax[0].text(len(pressureData)-1, pressureData[-1], "{:.3f}".format(pressureData[-1]))
-    ax[0].set_ylim(0,(pMax + (pMax*0.05)))
+    ax[0].set_ylim((pMin*1.05),(pMax*1.05))
     ax[1].scatter(len(mfcData)-1, mfcData[-1])
     ax[1].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
     ax[1].set_ylim(0,15)
@@ -102,12 +103,17 @@ def chart_gen(i):
             num2 = int(string2)
             numMA = num
 
+            maxV = 3.1 #Maximum voltage for pins on board
+            bitNum = 65535 #Number of bits for analog input
+            maxP = 5 #Max Pressure
+            bitRatio = maxV/bitNum
+
             #Number Formatting
-            f = (num * (3.355 / 65535.0))
+            f = (num * (bitRatio))
             f += offset
             f *= gain
-            f2 = (num2 * (5 / 65535.0)) * 3
-            fMA = (numMA * (3.355 / 65535.0))
+            f2 = (num2 * (bitRatio)) * maxP/(2*maxV)
+            fMA = (numMA * (bitRatio))
             fMA += offset
             fMA *= gain
 
