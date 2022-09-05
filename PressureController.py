@@ -11,7 +11,7 @@ from Logs import Log
 
 #Controller for argon pneumatics system for level measurement
 
-maxPressure = 2.5 #DO NOT CHANGE
+maxPressure = 6 #DO NOT CHANGE
 prevEMA = 0.00
 
 #Get counter
@@ -112,7 +112,7 @@ def chart_gen(i):
             f = (num * (bitRatio))
             f += offset
             f *= gain
-            f2 = (num2 * (bitRatio)) * maxP/(2*maxV)
+            f2 = (num2 * (bitRatio)) * maxP/(maxV/2)
             fMA = (numMA * (bitRatio))
             fMA += offset
             fMA *= gain
@@ -164,8 +164,6 @@ def modePicker():
         iI = input("Initial Flow: ")
         iH = input("High Flow: ")
         iL = input("Low Flow: ")
-        maxFlow = 9.42
-        bitConversion = 255 / maxFlow
         initialInput = float(iI) * bitConversion
         inputValue = initialInput
         inputHigh = float(iH) * bitConversion
@@ -198,6 +196,8 @@ except Exception as e:
 
 
 #Initial Variables
+maxFlow = 9.399
+bitConversion = 255 / maxFlow
 variableOn = False
 continuous = 255
 initialInput = continuous
@@ -232,10 +232,10 @@ if __name__ == "__main__":
                 writer2.writerow(header)
 
                 counter = 0
-                moving_average = 100
+                moving_average = 80
                 alpha = (2/(moving_average + 1))
-                offset = -1.792377686
-                gain = 5/(3.1+offset)
+                offset = -1.177
+                gain = 1.95
                 argonCorrection = 1.18
                 sensorData = []
                 timeData = []

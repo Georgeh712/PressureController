@@ -1,5 +1,0 @@
-Log file started: 2022-08-24 15:44:51.553919
-2022-08-24 15:44:51 ERROR:  could not open port 'COM12': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
-2022-08-24 15:44:54 NOTICE:  Continuous- InitialValue: 5.0 InputHigh: 5.0 InputLow: 5.0
-2022-08-24 15:45:08 NOTICE:  MA: 50 Gain: 2.404 Offset: -1.28
-2022-08-24 15:45:18 ERROR:  name 'ser' is not defined
