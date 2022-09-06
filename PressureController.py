@@ -54,15 +54,17 @@ def data_handler(temp):
     pMin = np.min(pressureData)
 
     # plot
-    ax[0].plot(pressureData)
-    ax[0].plot(pressureDataMA)
-    ax[1].plot(mfcData)
+    ax[0].plot(pressureData, label="Pressure (Bar)")
+    ax[0].plot(pressureDataMA, label="Pressure (Bar) Filtered")
+    ax[1].plot(mfcData, label="Flow (L/min)")
     ax[0].scatter(len(pressureData)-1, pressureData[-1])
     ax[0].text(len(pressureData)-1, pressureData[-1], "{:.3f}".format(pressureData[-1]))
     ax[0].set_ylim((pMin*1.05),(pMax*1.05))
     ax[1].scatter(len(mfcData)-1, mfcData[-1])
     ax[1].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
     ax[1].set_ylim(0,15)
+    ax[0].legend()
+    ax[1].legend()
 
 #Moving average calculator
 def calc_ma(num, ma):
@@ -232,7 +234,7 @@ if __name__ == "__main__":
                 writer2.writerow(header)
 
                 counter = 0
-                moving_average = 80
+                moving_average = 60
                 alpha = (2/(moving_average + 1))
                 offset = -1.177
                 gain = 1.95
