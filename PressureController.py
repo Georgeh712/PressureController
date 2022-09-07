@@ -1,3 +1,4 @@
+import os, shutil
 import serial
 import time
 import datetime
@@ -198,6 +199,41 @@ def pressureSafety(pressure):
     if pressure > maxPressure:
         exit(0)
 
+def deleteRecords():
+    confirm = input('Are you sure you wish to delete all records?\n')
+    if confirm == 'Y' or confirm == 'y':
+        folders = ['Logs/', 'Results/', 'ResultsCondensed/']
+        for folder in folders:
+            f = folder
+            for filename in os.listdir(f):
+                file_path = os.path.join(f, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    logFile.sendError(e)
+                    print('Failed to delete %s. Reason: %s' % (file_path, e))
+    else:
+        print("No Files Deleted")
+
+def startMenu():
+    while(True):
+        choice = int(input(
+                    "1: Run recorder\n"
+                    "2: Exit\n"
+                    "9: Delete all logs and saved files\n"))
+        if choice == 1:
+            return 'Y'
+        elif choice == 2:
+            print("Choice 2 selected")
+            return 'N'
+        elif choice == 9:
+            deleteRecords()
+        else:
+            print("Invalid Input - Try Again")
+            startMenu()
 #Start log file        
 startTime = datetime.datetime.now()
 logFile = Log(str(startTime))
@@ -228,7 +264,7 @@ if __name__ == "__main__":
     while (True):
         print("\nProgram Started...\n")
         try:
-            start = input("Run recorder? Y/N: ")
+            start = startMenu()
             if start == "y" or start == "Y":
                 modePicker()
                 header = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'MAPressureData', 'InputMFCValue', 'Height']
@@ -281,6 +317,7 @@ if __name__ == "__main__":
                 f.close()
                 r.close()
             if start == "n" or start == "N":
+                print("Session Ended")
                 ser.close()
                 exit(0)
 
