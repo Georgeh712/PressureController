@@ -8,7 +8,7 @@ import collections
 from matplotlib.animation import FuncAnimation
 from multiprocessing import Process
 from Logs import Log
-
+plt.style.use('ggplot')
 #Controller for argon pneumatics system for level measurement
 
 maxPressure = 6 #DO NOT CHANGE
@@ -48,12 +48,10 @@ def data_handler(temp):
     heightData.popleft()
     heightData.append(temp[7])
 
-    xBars = [0,1,2,3,4,5,6,7,8,9]
-    xHeights = heightData
-
     # clear axis
     ax[0,0].cla()
     ax[1,0].cla()
+    ax[0,1].cla()
     ax[1,1].cla()
 
     pMax = np.max(pressureData)
@@ -63,8 +61,7 @@ def data_handler(temp):
     ax[0,0].plot(pressureData, label="Pressure (Bar)")
     ax[0,0].plot(pressureDataMA, label="Pressure (Bar) Filtered")
     ax[1,0].plot(mfcData, label="Flow (L/min)")
-
-    ax[1,1].bar(xBars, xHeights)
+    #ax[1,1].plot(heightData, label="Depth (m)")
 
     ax[0,0].scatter(len(pressureData)-1, pressureData[-1])
     ax[0,0].text(len(pressureData)-1, pressureData[-1], "{:.3f}".format(pressureData[-1]))
@@ -72,7 +69,12 @@ def data_handler(temp):
 
     ax[1,0].scatter(len(mfcData)-1, mfcData[-1])
     ax[1,0].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
-    ax[1,0].set_ylim(0,15)
+    ax[1,0].set_ylim(0,12)
+
+    ax[1,1].bar('Depth', heightData)
+    ax[1,1].text(0, heightData[0]+0.05, "{:.3f}".format(heightData[0]))
+    ax[1,1].set_ylabel('Depth (m)')
+    ax[1,1].set_ylim(0,1)
 
     ax[0,0].legend()
     ax[1,0].legend()
@@ -141,11 +143,11 @@ def chart_gen(i):
             fNum2 = "{:.3f}".format(f2)
             fNumMa = "{:.3f}".format(fMA)
 
-            height = (fMA*100000)/(1000*7*9.81)
-            height = "{:.3f}".format(height)
+            height = float((fMA*100000)/(1000*7*9.81))
+            fheight = "{:.3f}".format(height)
 
             #Data printing to terminal, saving to csv and writing to arduino
-            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/bitConversion), "\t\t Depth: ", height)
+            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/bitConversion), "\t\t Depth: ", fheight)
             insert_data(f, timeNow, temp, f2, num, num2, fMA, height)
             writeToArd(str(inputValue))
 
@@ -260,7 +262,7 @@ if __name__ == "__main__":
                 pressureData = collections.deque(np.zeros(2000))
                 pressureDataMA = collections.deque(np.zeros(2000))
                 mfcData = collections.deque(np.zeros(2000))
-                heightData = collections.deque(np.zeros(10))
+                heightData = collections.deque(np.zeros(1))
 
                 # define and adjust figure
                 fig, ax = plt.subplots(2, 2, figsize=(15,8))

@@ -7,8 +7,9 @@ class Log:
         fileNameDate = self.fileName[0:10]
         hour = self.fileName[11:13]
         mins = self.fileName[14:16]
+        secs = self.fileName[17:19]
 
-        fileNameForm = "Logs/" + fileNameDate + "-" + hour + mins + ".txt"
+        fileNameForm = "Logs/" + fileNameDate + "-" + hour + mins + secs + ".txt"
 
         self.f = open(fileNameForm, 'x')
         startString = "Log file started: " + self.fileName
