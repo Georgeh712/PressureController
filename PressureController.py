@@ -1,3 +1,4 @@
+import os, shutil
 import serial
 import time
 import datetime
@@ -8,7 +9,7 @@ import collections
 from matplotlib.animation import FuncAnimation
 from multiprocessing import Process
 from Logs import Log
-
+plt.style.use('ggplot')
 #Controller for argon pneumatics system for level measurement
 
 maxPressure = 6 #DO NOT CHANGE
@@ -45,24 +46,39 @@ def data_handler(temp):
     pressureDataMA.append(temp[5])
     mfcData.popleft()
     mfcData.append(temp[2])
+    heightData.popleft()
+    heightData.append(temp[7])
 
     # clear axis
-    ax[0].cla()
-    ax[1].cla()
+    ax[0,0].cla()
+    ax[1,0].cla()
+    ax[0,1].cla()
+    ax[1,1].cla()
 
     pMax = np.max(pressureData)
     pMin = np.min(pressureData)
 
     # plot
-    ax[0].plot(pressureData)
-    ax[0].plot(pressureDataMA)
-    ax[1].plot(mfcData)
-    ax[0].scatter(len(pressureData)-1, pressureData[-1])
-    ax[0].text(len(pressureData)-1, pressureData[-1], "{:.3f}".format(pressureData[-1]))
-    ax[0].set_ylim((pMin*1.05),(pMax*1.05))
-    ax[1].scatter(len(mfcData)-1, mfcData[-1])
-    ax[1].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
-    ax[1].set_ylim(0,15)
+    ax[0,0].plot(pressureData, label="Pressure (Bar)")
+    ax[0,0].plot(pressureDataMA, label="Pressure (Bar) Filtered")
+    ax[1,0].plot(mfcData, label="Flow (L/min)")
+    #ax[1,1].plot(heightData, label="Depth (m)")
+
+    ax[0,0].scatter(len(pressureData)-1, pressureData[-1])
+    ax[0,0].text(len(pressureData)-1, pressureData[-1], "{:.3f}".format(pressureData[-1]))
+    ax[0,0].set_ylim((pMin*1.05),(pMax*1.05))
+
+    ax[1,0].scatter(len(mfcData)-1, mfcData[-1])
+    ax[1,0].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
+    ax[1,0].set_ylim(0,12)
+
+    ax[1,1].bar('Depth', heightData)
+    ax[1,1].text(0, heightData[0]+0.05, "{:.3f}".format(heightData[0]))
+    ax[1,1].set_ylabel('Depth (m)')
+    ax[1,1].set_ylim(0,1)
+
+    ax[0,0].legend()
+    ax[1,0].legend()
 
 #Moving average calculator
 def calc_ma(num, ma):
@@ -105,14 +121,14 @@ def chart_gen(i):
 
             maxV = 3.1 #Maximum voltage for pins on board
             bitNum = 65535 #Number of bits for analog input
-            maxP = 5 #Max Pressure
+            #maxP = 5 #Max Pressure
             bitRatio = maxV/bitNum
 
             #Number Formatting
             f = (num * (bitRatio))
             f += offset
             f *= gain
-            f2 = (num2 * (bitRatio)) * maxP/(maxV/2)
+            f2 = (num2 * (bitRatio)) * 2.994
             fMA = (numMA * (bitRatio))
             fMA += offset
             fMA *= gain
@@ -128,11 +144,11 @@ def chart_gen(i):
             fNum2 = "{:.3f}".format(f2)
             fNumMa = "{:.3f}".format(fMA)
 
-            height = (fMA*100000)/(1000*7*9.81)
-            height = "{:.3f}".format(height)
+            height = float((fMA*100000)/(1000*7*9.81))
+            fheight = "{:.3f}".format(height)
 
             #Data printing to terminal, saving to csv and writing to arduino
-            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/bitConversion), "\t\t Depth: ", height)
+            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/bitConversion), "\t\t Depth: ", fheight)
             insert_data(f, timeNow, temp, f2, num, num2, fMA, height)
             writeToArd(str(inputValue))
 
@@ -153,7 +169,7 @@ def writeToArd(x):
 
 #Start chart animation
 def joiner(fig):
-    return FuncAnimation(fig, chart_gen, interval=0)
+    return FuncAnimation(fig, chart_gen, interval=100)
 
 #Define variables for continous flow mode and variable flow mode
 def modePicker():
@@ -183,17 +199,53 @@ def pressureSafety(pressure):
     if pressure > maxPressure:
         exit(0)
 
+def deleteRecords():
+    confirm = input('Are you sure you wish to delete all records?\n')
+    if confirm == 'Y' or confirm == 'y':
+        folders = ['Logs/', 'Results/', 'ResultsCondensed/']
+        for folder in folders:
+            f = folder
+            for filename in os.listdir(f):
+                file_path = os.path.join(f, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    logFile.sendError(e)
+                    print('Failed to delete %s. Reason: %s' % (file_path, e))
+    else:
+        print("No Files Deleted")
+
+def startMenu():
+    while(True):
+        choice = int(input(
+                    "1: Run recorder\n"
+                    "2: Exit\n"
+                    "9: Delete all logs and saved files\n"))
+        if choice == 1:
+            return 'Y'
+        elif choice == 2:
+            print("Choice 2 selected")
+            return 'N'
+        elif choice == 9:
+            deleteRecords()
+        else:
+            print("Invalid Input - Try Again")
+            startMenu()
+
+def startSerialConnection():
+    try:
+        ser = serial.Serial('COM12', 250000, timeout=1)
+        return ser
+    except Exception as e:
+        print(e)
+        logFile.sendError(e)
+
 #Start log file        
 startTime = datetime.datetime.now()
 logFile = Log(str(startTime))
-
-#Connection to Arduino
-try:
-    ser = serial.Serial('COM12', 250000, timeout=1)
-except Exception as e:
-    print(e)
-    logFile.sendError(e)
-
 
 #Initial Variables
 maxFlow = 9.399
@@ -213,7 +265,7 @@ if __name__ == "__main__":
     while (True):
         print("\nProgram Started...\n")
         try:
-            start = input("Run recorder? Y/N: ")
+            start = startMenu()
             if start == "y" or start == "Y":
                 modePicker()
                 header = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'MAPressureData', 'InputMFCValue', 'Height']
@@ -232,7 +284,7 @@ if __name__ == "__main__":
                 writer2.writerow(header)
 
                 counter = 0
-                moving_average = 80
+                moving_average = 60
                 alpha = (2/(moving_average + 1))
                 offset = -1.177
                 gain = 1.95
@@ -247,11 +299,16 @@ if __name__ == "__main__":
                 pressureData = collections.deque(np.zeros(2000))
                 pressureDataMA = collections.deque(np.zeros(2000))
                 mfcData = collections.deque(np.zeros(2000))
+                heightData = collections.deque(np.zeros(1))
 
                 # define and adjust figure
-                fig, ax = plt.subplots(2, figsize=(15,8))
-                ax[0].set_facecolor('#DEDEDE')
-                ax[1].set_facecolor('#DEDEDE')
+                fig, ax = plt.subplots(2, 2, figsize=(15,8))
+                ax[0,0].set_facecolor('#DEDEDE')
+                ax[1,0].set_facecolor('#DEDEDE')
+                ax[1,1].set_facecolor('#DEDEDE')
+
+                #Start connection with Arduino
+                ser = startSerialConnection()
 
                 #Declare animation, show plot
                 ani = joiner(fig)
@@ -264,6 +321,7 @@ if __name__ == "__main__":
                 f.close()
                 r.close()
             if start == "n" or start == "N":
+                print("Session Ended")
                 ser.close()
                 exit(0)
 

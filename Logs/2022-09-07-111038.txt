@@ -1,0 +1,5 @@
+Log file started: 2022-09-07 11:10:38.004958
+2022-09-07 11:10:42 NOTICE:  Continuous- InitialValue: 4.999999999999999 InputHigh: 4.999999999999999 InputLow: 4.999999999999999
+2022-09-07 11:10:45 NOTICE:  MA: 60 Gain: 1.95 Offset: -1.177
+2022-09-07 11:10:45 ERROR:  could not open port 'COM12': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2022-09-07 11:10:57 ERROR:  'NoneType' object has no attribute 'close'
