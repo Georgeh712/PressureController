@@ -45,26 +45,37 @@ def data_handler(temp):
     pressureDataMA.append(temp[5])
     mfcData.popleft()
     mfcData.append(temp[2])
+    heightData.popleft()
+    heightData.append(temp[7])
+
+    xBars = [0,1,2,3,4,5,6,7,8,9]
+    xHeights = heightData
 
     # clear axis
-    ax[0].cla()
-    ax[1].cla()
+    ax[0,0].cla()
+    ax[1,0].cla()
+    ax[1,1].cla()
 
     pMax = np.max(pressureData)
     pMin = np.min(pressureData)
 
     # plot
-    ax[0].plot(pressureData, label="Pressure (Bar)")
-    ax[0].plot(pressureDataMA, label="Pressure (Bar) Filtered")
-    ax[1].plot(mfcData, label="Flow (L/min)")
-    ax[0].scatter(len(pressureData)-1, pressureData[-1])
-    ax[0].text(len(pressureData)-1, pressureData[-1], "{:.3f}".format(pressureData[-1]))
-    ax[0].set_ylim((pMin*1.05),(pMax*1.05))
-    ax[1].scatter(len(mfcData)-1, mfcData[-1])
-    ax[1].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
-    ax[1].set_ylim(0,15)
-    ax[0].legend()
-    ax[1].legend()
+    ax[0,0].plot(pressureData, label="Pressure (Bar)")
+    ax[0,0].plot(pressureDataMA, label="Pressure (Bar) Filtered")
+    ax[1,0].plot(mfcData, label="Flow (L/min)")
+
+    ax[1,1].bar(xBars, xHeights)
+
+    ax[0,0].scatter(len(pressureData)-1, pressureData[-1])
+    ax[0,0].text(len(pressureData)-1, pressureData[-1], "{:.3f}".format(pressureData[-1]))
+    ax[0,0].set_ylim((pMin*1.05),(pMax*1.05))
+
+    ax[1,0].scatter(len(mfcData)-1, mfcData[-1])
+    ax[1,0].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
+    ax[1,0].set_ylim(0,15)
+
+    ax[0,0].legend()
+    ax[1,0].legend()
 
 #Moving average calculator
 def calc_ma(num, ma):
@@ -107,14 +118,14 @@ def chart_gen(i):
 
             maxV = 3.1 #Maximum voltage for pins on board
             bitNum = 65535 #Number of bits for analog input
-            maxP = 5 #Max Pressure
+            #maxP = 5 #Max Pressure
             bitRatio = maxV/bitNum
 
             #Number Formatting
             f = (num * (bitRatio))
             f += offset
             f *= gain
-            f2 = (num2 * (bitRatio)) * maxP/(maxV/2)
+            f2 = (num2 * (bitRatio)) * 2.994
             fMA = (numMA * (bitRatio))
             fMA += offset
             fMA *= gain
@@ -155,7 +166,7 @@ def writeToArd(x):
 
 #Start chart animation
 def joiner(fig):
-    return FuncAnimation(fig, chart_gen, interval=0)
+    return FuncAnimation(fig, chart_gen, interval=100)
 
 #Define variables for continous flow mode and variable flow mode
 def modePicker():
@@ -249,11 +260,13 @@ if __name__ == "__main__":
                 pressureData = collections.deque(np.zeros(2000))
                 pressureDataMA = collections.deque(np.zeros(2000))
                 mfcData = collections.deque(np.zeros(2000))
+                heightData = collections.deque(np.zeros(10))
 
                 # define and adjust figure
-                fig, ax = plt.subplots(2, figsize=(15,8))
-                ax[0].set_facecolor('#DEDEDE')
-                ax[1].set_facecolor('#DEDEDE')
+                fig, ax = plt.subplots(2, 2, figsize=(15,8))
+                ax[0,0].set_facecolor('#DEDEDE')
+                ax[1,0].set_facecolor('#DEDEDE')
+                ax[1,1].set_facecolor('#DEDEDE')
 
                 #Declare animation, show plot
                 ani = joiner(fig)
