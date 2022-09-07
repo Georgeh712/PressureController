@@ -234,17 +234,18 @@ def startMenu():
         else:
             print("Invalid Input - Try Again")
             startMenu()
+
+def startSerialConnection():
+    try:
+        ser = serial.Serial('COM12', 250000, timeout=1)
+        return ser
+    except Exception as e:
+        print(e)
+        logFile.sendError(e)
+
 #Start log file        
 startTime = datetime.datetime.now()
 logFile = Log(str(startTime))
-
-#Connection to Arduino
-try:
-    ser = serial.Serial('COM12', 250000, timeout=1)
-except Exception as e:
-    print(e)
-    logFile.sendError(e)
-
 
 #Initial Variables
 maxFlow = 9.399
@@ -305,6 +306,9 @@ if __name__ == "__main__":
                 ax[0,0].set_facecolor('#DEDEDE')
                 ax[1,0].set_facecolor('#DEDEDE')
                 ax[1,1].set_facecolor('#DEDEDE')
+
+                #Start connection with Arduino
+                ser = startSerialConnection()
 
                 #Declare animation, show plot
                 ani = joiner(fig)
