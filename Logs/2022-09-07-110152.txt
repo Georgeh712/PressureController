@@ -1,4 +1,0 @@
-Log file started: 2022-09-07 11:01:52.192038
-2022-09-07 11:01:52 ERROR:  could not open port 'COM12': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
-2022-09-07 11:01:54 ERROR:  [WinError 32] The process cannot access the file because it is being used by another process: 'Logs/2022-09-07-110152.txt'
-2022-09-07 11:01:58 ERROR:  name 'ser' is not defined
