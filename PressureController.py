@@ -1,4 +1,5 @@
 import os, shutil
+import math
 import serial
 import time
 import datetime
@@ -25,11 +26,11 @@ def set_counter(updateCount):
     counter = counter + updateCount
 
 #Insert data into csv file
-def insert_data(f, timeNow, temp, f2, num, num2, fMA, height):
+def insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight):
     sensorData.append(fMA)
     timeData.append(timeNow)
 
-    temp.extend((timeNow, num2, f2, num, f, fMA, inputValue, height))
+    temp.extend((timeNow, num2, f2, num, f, fMA, inputValue, height, weight))
 
     writer.writerow(temp) # write to csv
 
@@ -48,6 +49,8 @@ def data_handler(temp):
     mfcData.append(temp[2])
     heightData.popleft()
     heightData.append(temp[7])
+    weightData.popleft()
+    weightData.append(temp[8])
 
     # clear axis
     ax[0,0].cla()
@@ -62,15 +65,20 @@ def data_handler(temp):
     ax[0,0].plot(pressureData, label="Pressure (Bar)")
     ax[0,0].plot(pressureDataMA, label="Pressure (Bar) Filtered")
     ax[1,0].plot(mfcData, label="Flow (L/min)")
-    #ax[1,1].plot(heightData, label="Depth (m)")
+    ax[0,1].plot(weightData, label="Weight (Tonnes)")
 
     ax[0,0].scatter(len(pressureData)-1, pressureData[-1])
-    ax[0,0].text(len(pressureData)-1, pressureData[-1], "{:.3f}".format(pressureData[-1]))
+    ax[0,0].text(len(pressureDataMA)-1, pressureDataMA[-1], "{:.3f}".format(pressureDataMA[-1]))
     ax[0,0].set_ylim((pMin*1.05),(pMax*1.05))
 
     ax[1,0].scatter(len(mfcData)-1, mfcData[-1])
     ax[1,0].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
     ax[1,0].set_ylim(0,12)
+    
+    ax[0,1].scatter(len(weightData)-1, weightData[-1])
+    ax[0,1].text(len(weightData)-1, weightData[-1], "{:.3f}".format(weightData[-1]))
+    ax[0,1].set_ylabel('Weight (Tonnes)')
+    ax[0,1].set_ylim(0,40)
 
     ax[1,1].bar('Depth', heightData)
     ax[1,1].text(0, heightData[0]+0.05, "{:.3f}".format(heightData[0]))
@@ -79,6 +87,7 @@ def data_handler(temp):
 
     ax[0,0].legend()
     ax[1,0].legend()
+    ax[0,1].legend()
 
 #Moving average calculator
 def calc_ma(num, ma):
@@ -86,6 +95,12 @@ def calc_ma(num, ma):
     ema = (alpha*num) + ((1-alpha) * prevEMA)
     prevEMA = ema
     return ema
+
+def weightCalc(height):
+    areaTriangles = (height*(math.sin(0.203854)/math.sin(1.57-0.203854)))*height
+    area = ((1*(math.sin(0.349)/math.sin(1.57-0.349)))*1)+(0.34*1)
+    volume = ((areaTriangles+((0.508-0.05)*height))*(9.625-0.05))+(area*height)
+    return (volume*7000)/1000
 
 #Counter for switching between high and low flow
 def counter_timer():
@@ -146,10 +161,14 @@ def chart_gen(i):
 
             height = float((fMA*100000)/(1000*7*9.81))
             fheight = "{:.3f}".format(height)
+            
+            weight = weightCalc(height)
+            
+            fInputValue = "{:.3f}".format(inputValue/bitConversion)
 
             #Data printing to terminal, saving to csv and writing to arduino
-            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", (inputValue/bitConversion), "\t\t Depth: ", fheight)
-            insert_data(f, timeNow, temp, f2, num, num2, fMA, height)
+            print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", fInputValue, "\t\t Depth: ", fheight, "\t\t Weight: ", weight)
+            insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight)
             writeToArd(str(inputValue))
 
             #Variable low flow data storing
@@ -227,7 +246,7 @@ def startMenu():
         if choice == 1:
             return 'Y'
         elif choice == 2:
-            print("Choice 2 selected")
+            print("User Exit")
             return 'N'
         elif choice == 9:
             deleteRecords()
@@ -286,8 +305,8 @@ if __name__ == "__main__":
                 counter = 0
                 moving_average = 60
                 alpha = (2/(moving_average + 1))
-                offset = -1.177
-                gain = 1.95
+                offset = -1.177                     # 1.177V is the output of the sensor at 1 atm - the pressure measures absolute 0-5bar so max is 4 bar gauge
+                gain = 2.08                         # How do we properly calculate this value?
                 argonCorrection = 1.18
                 sensorData = []
                 timeData = []
@@ -300,6 +319,7 @@ if __name__ == "__main__":
                 pressureDataMA = collections.deque(np.zeros(2000))
                 mfcData = collections.deque(np.zeros(2000))
                 heightData = collections.deque(np.zeros(1))
+                weightData = collections.deque(np.zeros(5000))
 
                 # define and adjust figure
                 fig, ax = plt.subplots(2, 2, figsize=(15,8))
