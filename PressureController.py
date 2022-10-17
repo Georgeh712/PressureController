@@ -193,7 +193,7 @@ def writeToArd(x):
 
 #Start chart animation
 def joiner(fig):
-    return FuncAnimation(fig, chart_gen, interval=100)
+    return FuncAnimation(fig, chart_gen, interval=10)
 
 #Define variables for continous flow mode and variable flow mode
 def modePicker():
@@ -261,7 +261,7 @@ def startMenu():
 
 def startSerialConnection():
     try:
-        ser = serial.Serial('COM12', 250000, timeout=1)
+        ser = serial.Serial('COM13', 250000, timeout=1)
         return ser
     except Exception as e:
         print(e)
@@ -292,7 +292,7 @@ if __name__ == "__main__":
             start = startMenu()
             if start == "y" or start == "Y":
                 modePicker()
-                header = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'MAPressureData', 'InputMFCValue', 'Height']
+                header = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'MAPressureData', 'InputMFCValue', 'Height', 'Weight']
 
                 fileNameDate = str(input("Enter File Name: "))
                 hour = str(startTime)[11:13]

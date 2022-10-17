@@ -22,5 +22,5 @@ void loop() { // this loop runs repeatedly after setup() finishes
   int x = Serial.readString().toInt();
   analogWrite(outputPin, x);
 
-  delay (50); // Pause in milliseconds before next reading
+  delay (100); // Pause in milliseconds before next reading
 }
