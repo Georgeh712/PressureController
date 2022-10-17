@@ -67,19 +67,23 @@ def data_handler(temp):
     ax[1,0].plot(mfcData, label="Flow (L/min)")
     ax[0,1].plot(weightData, label="Weight (Tonnes)")
 
+    #Pressure chart
     ax[0,0].scatter(len(pressureData)-1, pressureData[-1])
     ax[0,0].text(len(pressureDataMA)-1, pressureDataMA[-1], "{:.3f}".format(pressureDataMA[-1]))
     ax[0,0].set_ylim((pMin*1.05),(pMax*1.05))
 
+    #Flow chart
     ax[1,0].scatter(len(mfcData)-1, mfcData[-1])
     ax[1,0].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
     ax[1,0].set_ylim(0,12)
     
+    #Weight chart
     ax[0,1].scatter(len(weightData)-1, weightData[-1])
     ax[0,1].text(len(weightData)-1, weightData[-1], "{:.3f}".format(weightData[-1]))
     ax[0,1].set_ylabel('Weight (Tonnes)')
     ax[0,1].set_ylim(0,40)
 
+    #Depth chart
     ax[1,1].bar('Depth', heightData)
     ax[1,1].text(0, heightData[0]+0.05, "{:.3f}".format(heightData[0]))
     ax[1,1].set_ylabel('Depth (m)')
@@ -96,6 +100,7 @@ def calc_ma(num, ma):
     prevEMA = ema
     return ema
 
+#Calculates weight based on rough dimension of tundish (output is only an estimate)
 def weightCalc(height):
     areaTriangles = (height*(math.sin(0.203854)/math.sin(1.57-0.203854)))*height
     area = ((1*(math.sin(0.349)/math.sin(1.57-0.349)))*1)+(0.34*1)
@@ -188,7 +193,7 @@ def writeToArd(x):
 
 #Start chart animation
 def joiner(fig):
-    return FuncAnimation(fig, chart_gen, interval=100)
+    return FuncAnimation(fig, chart_gen, interval=10)
 
 #Define variables for continous flow mode and variable flow mode
 def modePicker():
@@ -256,7 +261,7 @@ def startMenu():
 
 def startSerialConnection():
     try:
-        ser = serial.Serial('COM12', 250000, timeout=1)
+        ser = serial.Serial('COM13', 250000, timeout=1)
         return ser
     except Exception as e:
         print(e)
@@ -287,7 +292,7 @@ if __name__ == "__main__":
             start = startMenu()
             if start == "y" or start == "Y":
                 modePicker()
-                header = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'MAPressureData', 'InputMFCValue', 'Height']
+                header = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'MAPressureData', 'InputMFCValue', 'Height', 'Weight']
 
                 fileNameDate = str(input("Enter File Name: "))
                 hour = str(startTime)[11:13]
