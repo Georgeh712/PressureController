@@ -1,0 +1,6 @@
+Log file started: 2022-10-21 09:07:04.473431
+2022-10-21 09:07:09 NOTICE:  MA: 60 Gain: 1.254 Offset: -1.79
+2022-10-21 09:09:13 NOTICE:  Continuous- InitialValue: 1.0 InputHigh: 1.0 InputLow: 1.0
+2022-10-21 09:09:14 NOTICE:  MA: 60 Gain: 1.254 Offset: -1.79
+2022-10-21 09:09:52 NOTICE:  Continuous- InitialValue: 2.0 InputHigh: 2.0 InputLow: 2.0
+2022-10-21 09:09:52 ERROR:  [Errno 17] File exists: 'Results/w_09-07.csv'

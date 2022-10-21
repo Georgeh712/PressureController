@@ -1,8 +1,0 @@
-Log file started: 2022-09-09 09:41:28.516121
-2022-09-09 09:41:31 NOTICE:  Continuous- InitialValue: 4.999999999999999 InputHigh: 4.999999999999999 InputLow: 4.999999999999999
-2022-09-09 09:41:37 NOTICE:  MA: 60 Gain: 2.08 Offset: -1.177
-2022-09-09 09:51:53 NOTICE:  Continuous- InitialValue: 4.999999999999999 InputHigh: 4.999999999999999 InputLow: 4.999999999999999
-2022-09-09 09:51:54 NOTICE:  MA: 60 Gain: 2.08 Offset: -1.177
-2022-09-09 09:52:40 NOTICE:  Continuous- InitialValue: 4.999999999999999 InputHigh: 4.999999999999999 InputLow: 4.999999999999999
-2022-09-09 09:52:45 NOTICE:  MA: 60 Gain: 2.08 Offset: -1.177
-2022-09-09 09:52:55 ERROR:  [WinError 32] The process cannot access the file because it is being used by another process: 'Logs/2022-09-09-094128.txt'
