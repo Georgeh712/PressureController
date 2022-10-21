@@ -1,0 +1,63 @@
+# -*- coding: utf-8 -*-
+"""
+First Attempt at Control Panel
+"""
+
+import PySimpleGUI as sg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib
+import os, shutil
+import math
+import serial
+import time
+import datetime
+import matplotlib.pyplot as plt
+import csv
+import numpy as np
+import collections
+from matplotlib.animation import FuncAnimation
+from multiprocessing import Process
+from Logs import Log
+plt.style.use('ggplot'
+
+sg.theme('Topango')
+layout =  [[sg.T("")], [sg.Text("Desired Flow:")], [sg.Multiline(size=(30, 5), key='-OUTPUT-')],
+          [sg.T("")], [sg.Text("Height Above Base:")], [sg.Multiline(size=(30, 5), key='-OUTPUT-')],
+          [sg.T("")], [sg.Text("Minimum Height:")], [sg.Multiline(size=(30, 5), key='-OUTPUT-')],
+          [sg.T("")], [sg.Text("Maximum Height:")], [sg.Multiline(size=(30, 5), key='-OUTPUT-')],
+          [sg.T("")], [sg.Button("START"), size=(20,4), button_color=('seagreen1')], [sg.Button("PAUSE"), size=(20,4), button_color=('orange')], [sg.Button("STOP"), size=(20,4), button_color=('red')],
+          [sg.T("")], [sg.Text("Control Panel")], [sg.Text("Data Plotter")], [sg.Text("Display")]]
+sg.Window("Control Panel", layout, size=(200,150))
+
+#-------------------------------------------------------------------------------
+# Create an event loop
+def TextboxFunction
+    window['-OUTPUT-'].update(values['-IN-'])
+    window['-OUTPUT-'].update(values['-IN-'])
+    window['-OUTPUT-'].update(values['-IN-'])
+    window['-OUTPUT-'].update(values['-IN-'])
+    
+#-------------------------------------------------------------------------------
+# Create an event loop
+def ButtonPress
+while True:
+    event, values = window.read()
+    if event in (sg.WIN_CLOSED, 'STOP'):
+        break
+    elif event in ('START'):
+        runCommand(cmd=values['_IN_'], window=window)
+        print("Open Data Plotter")
+    elif event in ('PAUSE'):
+        break
+    
+#-------------------------------------------------------------------------------
+# Create an event loop
+def TabFunction
+while True:
+    event, values = window.read()
+    if event in (sg.WIN_CLOSED, 'STOP'):
+        break
+    elif event in ('START'):
+        runCommand(cmd=values['_IN_'], window=window)
+    elif event in ('PAUSE'):
+        break

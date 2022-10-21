@@ -13,7 +13,7 @@ from Logs import Log
 plt.style.use('ggplot')
 #Controller for argon pneumatics system for level measurement
 
-maxPressure = 6 #DO NOT CHANGE
+maxPressure = 3.3 - 1.81 #DO NOT CHANGE (max - offset)
 prevEMA = 0.00
 
 #Get counter
@@ -139,16 +139,16 @@ def chart_gen(i):
             num2 = int(string2)
             numMA = num
 
-            maxV = 3.1 #Maximum voltage for pins on board
-            bitNum = 65535 #Number of bits for analog input
-            #maxP = 5 #Max Pressure
+            maxV = 3.271 #Maximum voltage for pins on board (INPUT USED, SHOULD IT BE OUTPUT?)
+            bitNum = 4096 #Number of bits for analog input
+            flowMultiplier = maxFlow/maxV
             bitRatio = maxV/bitNum
 
             #Number Formatting
             f = (num * (bitRatio))
             f += offset
             f *= gain
-            f2 = (num2 * (bitRatio)) * 2.994
+            f2 = (num2 * (bitRatio)) * flowMultiplier
             fMA = (numMA * (bitRatio))
             fMA += offset
             fMA *= gain
@@ -261,7 +261,7 @@ def startMenu():
 
 def startSerialConnection():
     try:
-        ser = serial.Serial('COM13', 250000, timeout=1)
+        ser = serial.Serial('COM14', 9600, timeout=1)
         return ser
     except Exception as e:
         print(e)
@@ -272,7 +272,7 @@ startTime = datetime.datetime.now()
 logFile = Log(str(startTime))
 
 #Initial Variables
-maxFlow = 9.399
+maxFlow = 9.813 #maximum flow rate 
 bitConversion = 255 / maxFlow
 variableOn = False
 continuous = 255
@@ -308,10 +308,10 @@ if __name__ == "__main__":
                 writer2.writerow(header)
 
                 counter = 0
-                moving_average = 60
+                moving_average = 30
                 alpha = (2/(moving_average + 1))
-                offset = -1.177                     # 1.177V is the output of the sensor at 1 atm - the pressure measures absolute 0-5bar so max is 4 bar gauge
-                gain = 2.08                         # How do we properly calculate this value?
+                offset = -1.76                    # 1.81V is the output of the sensor at 1 atm - the pressure measures absolute 0-5bar so max is 4 bar gauge
+                gain = 1.254                        # How do we properly calculate this value?
                 argonCorrection = 1.18
                 sensorData = []
                 timeData = []
