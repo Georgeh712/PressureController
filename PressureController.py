@@ -16,15 +16,6 @@ plt.style.use('ggplot')
 maxPressure = 3.3 - 1.81 #DO NOT CHANGE (max - offset)
 prevEMA = 0.00
 
-#Get counter
-def get_counter():
-    return counter
-
-#Set counter
-def set_counter(updateCount):
-    global counter
-    counter = counter + updateCount
-
 #Insert data into csv file
 def insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight):
     sensorData.append(fMA)
@@ -33,10 +24,6 @@ def insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight):
     temp.extend((timeNow, num2, f2, num, f, fMA, inputValue, height, weight))
 
     writer.writerow(temp) # write to csv
-
-#Insert data for condensed csv file
-def insert_data_2(temp):
-    writer2.writerow(temp) # write to csv
 
 #Set data on subplots
 def data_handler(temp):
@@ -107,28 +94,12 @@ def weightCalc(height):
     volume = ((areaTriangles+((0.508-0.05)*height))*(9.625-0.05))+(area*height)
     return (volume*7000)/1000
 
-#Counter for switching between high and low flow
-def counter_timer():
-    global counter, inputValue
-    if variableOn:
-        if counter == switchHigh:
-            inputValue = inputHigh
-            logFile.sendNotice("Switched High")
-        if counter == switchLow:
-            counter = 0
-            inputValue = inputLow
-            logFile.sendNotice("Switched Low")
-
 #Charting loop - loops when recording and displaying results
 def chart_gen(i):
     timeNow = datetime.datetime.now()
     line = ser.readline()   # read a byte string
     line2 = ser.readline() # read mfc
     temp = []
-
-    #Prime Counter
-    set_counter(1)
-    counter_timer()
 
     #Chart loop
     if line and line2:
@@ -175,10 +146,6 @@ def chart_gen(i):
             print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", fInputValue, "\t\t Depth: ", fheight, "\t\t Weight: ", weight)
             insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight)
             writeToArd(str(inputValue))
-
-            #Variable low flow data storing
-            if get_counter() == 15:
-                insert_data_2(temp)
             
             #Normal data storing
             data_handler(temp)
@@ -197,27 +164,15 @@ def joiner(fig):
 
 #Define variables for continous flow mode and variable flow mode
 def modePicker():
-    global initialInput, inputValue, inputHigh, inputLow, continuous, variableOn
-    corV = input("Run Continuous Mode or Variable?  Enter C or V: ")
-    if corV == "V" or corV == "v":
-        variableOn = True
-        iI = input("Initial Flow: ")
-        iH = input("High Flow: ")
-        iL = input("Low Flow: ")
-        initialInput = float(iI) * bitConversion
-        inputValue = initialInput
-        inputHigh = float(iH) * bitConversion
-        inputLow = float(iL) * bitConversion
-        logFile.sendNotice("Variable- InitialValue: " + str(iI) + " InputHigh: " + str(iH) + " InputLow: " + str(iL))
-    elif corV == "C" or corV == "c":
-        continuous = input("Continuous Flow: ")
-        continuous = float(continuous) * bitConversion
-        contFlow = continuous/bitConversion
-        inputHigh = continuous
-        inputLow = continuous
-        initialInput = continuous
-        inputValue = initialInput
-        logFile.sendNotice("Continuous- InitialValue: " + str(contFlow) + " InputHigh: " + str(contFlow) + " InputLow: " + str(contFlow))
+    global initialInput, inputValue, inputHigh, inputLow, continuous, variableOn    
+    continuous = input("Continuous Flow: ")
+    continuous = float(continuous) * bitConversion
+    contFlow = continuous/bitConversion
+    inputHigh = continuous
+    inputLow = continuous
+    initialInput = continuous
+    inputValue = initialInput
+    logFile.sendNotice("Continuous- InitialValue: " + str(contFlow) + " InputHigh: " + str(contFlow) + " InputLow: " + str(contFlow))
 
 def pressureSafety(pressure):
     if pressure > maxPressure:
@@ -298,14 +253,10 @@ if __name__ == "__main__":
                 hour = str(startTime)[11:13]
                 mins = str(startTime)[14:16]
                 fileNameLong = "Results/" + fileNameDate + "_" + hour + "-" + mins + ".csv"
-                fileNameShort = "ResultsCondensed/" + fileNameDate + "_" + hour + "-" + mins + ".csv"
 
                 f = open(fileNameLong, 'x', newline='')
-                r = open(fileNameShort, 'x', newline='')
                 writer = csv.writer(f)
-                writer2 = csv.writer(r)
                 writer.writerow(header)
-                writer2.writerow(header)
 
                 counter = 0
                 moving_average = 30
@@ -344,7 +295,7 @@ if __name__ == "__main__":
 
                 # close csv file
                 f.close()
-                r.close()
+
             if start == "n" or start == "N":
                 print("Session Ended")
                 ser.close()
