@@ -1,0 +1,4 @@
+Log file started: 2022-10-21 14:56:52.960776
+2022-10-21 14:56:56 NOTICE:  MA: 30 Gain: 1.254 Offset: -1.76
+2022-10-21 14:56:57 ERROR:  could not open port 'COM14': FileNotFoundError(2, 'The system cannot find the file specified.', None, 2)
+2022-10-21 14:59:29 ERROR:  'NoneType' object has no attribute 'close'
