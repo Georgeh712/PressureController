@@ -11,6 +11,8 @@ from matplotlib.animation import FuncAnimation
 from multiprocessing import Process
 from Logs import Log
 plt.style.use('ggplot')
+
+
 #Controller for argon pneumatics system for level measurement
 
 maxPressure = 3.3 - 1.81 #DO NOT CHANGE (max - offset)
@@ -164,7 +166,7 @@ def joiner(fig):
 
 #Define variables for continous flow mode and variable flow mode
 def modePicker():
-    global initialInput, inputValue, inputHigh, inputLow, continuous, variableOn    
+    global initialInput, inputValue, inputHigh, inputLow, continuous  
     continuous = input("Continuous Flow: ")
     continuous = float(continuous) * bitConversion
     contFlow = continuous/bitConversion
@@ -222,14 +224,13 @@ def startSerialConnection():
         print(e)
         logFile.sendError(e)
 
-#Start log file        
+#Start log file
 startTime = datetime.datetime.now()
 logFile = Log(str(startTime))
 
 #Initial Variables
 maxFlow = 9.813 #maximum flow rate 
 bitConversion = 255 / maxFlow
-variableOn = False
 continuous = 255
 initialInput = continuous
 switchHigh = 20

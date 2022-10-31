@@ -4,10 +4,12 @@
             "name": "Win32",
             "includePath": [
                 "C:\\Users\\f35621\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\**",
-                "C:\\Users\\f35621\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\mbed_portenta\\3.2.0\\**"
+                "C:\\Users\\f35621\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\mbed_portenta\\3.2.0\\**",
+                "C:\\Users\\f35621\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\mbed_portenta\\3.3.0\\**"
             ],
             "forcedInclude": [
-                "C:\\Users\\f35621\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\mbed_portenta\\3.2.0\\cores\\arduino\\Arduino.h"
+                "C:\\Users\\f35621\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\mbed_portenta\\3.2.0\\cores\\arduino\\Arduino.h",
+                "C:\\Users\\f35621\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\mbed_portenta\\3.3.0\\cores\\arduino\\Arduino.h"
             ],
             "intelliSenseMode": "msvc-x64"
         }
