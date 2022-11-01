@@ -13,17 +13,57 @@ from Logs import Log
 plt.style.use('ggplot')
 #Controller for argon pneumatics system for level measurement
 
-maxPressure = 3.3 - 1.81 #DO NOT CHANGE (max - offset)
-prevEMA = 0.00
+#---------------------------------------------------------------------------------------------------
+##Control Panel
+#Controller for argon pneumatics system for level measurement
 
-#Get counter
-def get_counter():
-    return counter
+def startMenu():
+    while(True):
+        choice = int(input(
+                    "1: Run recorder\n"
+                    "2: Exit\n"
+                    "9: Delete all logs and saved files\n"))
+        if choice == 1:
+            return 'Y'
+        elif choice == 2:
+            print("User Exit")
+            return 'N'
+        elif choice == 9:
+            deleteRecords()
+        else:
+            print("Invalid Input - Try Again")
+            startMenu()
 
-#Set counter
-def set_counter(updateCount):
-    global counter
-    counter = counter + updateCount
+def deleteRecords():
+    confirm = input('Are you sure you wish to delete all records?\n')
+    if confirm == 'Y' or confirm == 'y':
+        folders = ['Logs/', 'Results/', 'ResultsCondensed/']
+        for folder in folders:
+            f = folder
+            for filename in os.listdir(f):
+                file_path = os.path.join(f, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception as e:
+                    logFile.sendError(e)
+                    print('Failed to delete %s. Reason: %s' % (file_path, e))
+    else:
+        print("No Files Deleted")
+
+def startSerialConnection():
+    try:
+        ser = serial.Serial('COM14', 9600, timeout=1)
+        return ser
+    except Exception as e:
+        print(e)
+        logFile.sendError(e)
+
+#Write to arduino
+def writeToArd(x):
+    ser.write(x.encode())
 
 #Insert data into csv file
 def insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight):
@@ -33,10 +73,6 @@ def insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight):
     temp.extend((timeNow, num2, f2, num, f, fMA, inputValue, height, weight))
 
     writer.writerow(temp) # write to csv
-
-#Insert data for condensed csv file
-def insert_data_2(temp):
-    writer2.writerow(temp) # write to csv
 
 #Set data on subplots
 def data_handler(temp):
@@ -93,42 +129,15 @@ def data_handler(temp):
     ax[1,0].legend()
     ax[0,1].legend()
 
-#Moving average calculator
-def calc_ma(num, ma):
-    global prevEMA
-    ema = (alpha*num) + ((1-alpha) * prevEMA)
-    prevEMA = ema
-    return ema
+#Start chart animation
+def joiner(fig):
+    return FuncAnimation(fig, chart_gen, interval=10)
 
-#Calculates weight based on rough dimension of tundish (output is only an estimate)
-def weightCalc(height):
-    areaTriangles = (height*(math.sin(0.203854)/math.sin(1.57-0.203854)))*height
-    area = ((1*(math.sin(0.349)/math.sin(1.57-0.349)))*1)+(0.34*1)
-    volume = ((areaTriangles+((0.508-0.05)*height))*(9.625-0.05))+(area*height)
-    return (volume*7000)/1000
-
-#Counter for switching between high and low flow
-def counter_timer():
-    global counter, inputValue
-    if variableOn:
-        if counter == switchHigh:
-            inputValue = inputHigh
-            logFile.sendNotice("Switched High")
-        if counter == switchLow:
-            counter = 0
-            inputValue = inputLow
-            logFile.sendNotice("Switched Low")
-
-#Charting loop - loops when recording and displaying results
 def chart_gen(i):
     timeNow = datetime.datetime.now()
     line = ser.readline()   # read a byte string
     line2 = ser.readline() # read mfc
     temp = []
-
-    #Prime Counter
-    set_counter(1)
-    counter_timer()
 
     #Chart loop
     if line and line2:
@@ -175,10 +184,6 @@ def chart_gen(i):
             print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", fInputValue, "\t\t Depth: ", fheight, "\t\t Weight: ", weight)
             insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight)
             writeToArd(str(inputValue))
-
-            #Variable low flow data storing
-            if get_counter() == 15:
-                insert_data_2(temp)
             
             #Normal data storing
             data_handler(temp)
@@ -187,91 +192,43 @@ def chart_gen(i):
             print(e)
             logFile.sendError(e)
 
-#Write to arduino
-def writeToArd(x):
-    ser.write(x.encode())
-
-#Start chart animation
-def joiner(fig):
-    return FuncAnimation(fig, chart_gen, interval=10)
-
 #Define variables for continous flow mode and variable flow mode
 def modePicker():
-    global initialInput, inputValue, inputHigh, inputLow, continuous, variableOn
-    corV = input("Run Continuous Mode or Variable?  Enter C or V: ")
-    if corV == "V" or corV == "v":
-        variableOn = True
-        iI = input("Initial Flow: ")
-        iH = input("High Flow: ")
-        iL = input("Low Flow: ")
-        initialInput = float(iI) * bitConversion
-        inputValue = initialInput
-        inputHigh = float(iH) * bitConversion
-        inputLow = float(iL) * bitConversion
-        logFile.sendNotice("Variable- InitialValue: " + str(iI) + " InputHigh: " + str(iH) + " InputLow: " + str(iL))
-    elif corV == "C" or corV == "c":
-        continuous = input("Continuous Flow: ")
-        continuous = float(continuous) * bitConversion
-        contFlow = continuous/bitConversion
-        inputHigh = continuous
-        inputLow = continuous
-        initialInput = continuous
-        inputValue = initialInput
-        logFile.sendNotice("Continuous- InitialValue: " + str(contFlow) + " InputHigh: " + str(contFlow) + " InputLow: " + str(contFlow))
+    global initialInput, inputValue, inputHigh, inputLow, continuous, variableOn    
+    continuous = input("Continuous Flow: ")
+    continuous = float(continuous) * bitConversion
+    contFlow = continuous/bitConversion
+    inputHigh = continuous
+    inputLow = continuous
+    initialInput = continuous
+    inputValue = initialInput
+    logFile.sendNotice("Continuous- InitialValue: " + str(contFlow) + " InputHigh: " + str(contFlow) + " InputLow: " + str(contFlow))
+
+  #Moving average calculator
+def calc_ma(num, ma):
+    global prevEMA
+    ema = (alpha*num) + ((1-alpha) * prevEMA)
+    prevEMA = ema
+    return ema
+
+#Calculates weight based on rough dimension of tundish (output is only an estimate)
+def weightCalc(height):
+    areaTriangles = (height*(math.sin(0.203854)/math.sin(1.57-0.203854)))*height
+    area = ((1*(math.sin(0.349)/math.sin(1.57-0.349)))*1)+(0.34*1)
+    volume = ((areaTriangles+((0.508-0.05)*height))*(9.625-0.05))+(area*height)
+    return (volume*7000)/1000
 
 def pressureSafety(pressure):
     if pressure > maxPressure:
         exit(0)
-
-def deleteRecords():
-    confirm = input('Are you sure you wish to delete all records?\n')
-    if confirm == 'Y' or confirm == 'y':
-        folders = ['Logs/', 'Results/', 'ResultsCondensed/']
-        for folder in folders:
-            f = folder
-            for filename in os.listdir(f):
-                file_path = os.path.join(f, filename)
-                try:
-                    if os.path.isfile(file_path) or os.path.islink(file_path):
-                        os.unlink(file_path)
-                    elif os.path.isdir(file_path):
-                        shutil.rmtree(file_path)
-                except Exception as e:
-                    logFile.sendError(e)
-                    print('Failed to delete %s. Reason: %s' % (file_path, e))
-    else:
-        print("No Files Deleted")
-
-def startMenu():
-    while(True):
-        choice = int(input(
-                    "1: Run recorder\n"
-                    "2: Exit\n"
-                    "9: Delete all logs and saved files\n"))
-        if choice == 1:
-            return 'Y'
-        elif choice == 2:
-            print("User Exit")
-            return 'N'
-        elif choice == 9:
-            deleteRecords()
-        else:
-            print("Invalid Input - Try Again")
-            startMenu()
-
-def startSerialConnection():
-    try:
-        ser = serial.Serial('COM14', 9600, timeout=1)
-        return ser
-    except Exception as e:
-        print(e)
-        logFile.sendError(e)
 
 #Start log file        
 startTime = datetime.datetime.now()
 logFile = Log(str(startTime))
 
 #Initial Variables
+maxPressure = 3.3 - 1.81 #DO NOT CHANGE (max - offset)
+prevEMA = 0.00
 maxFlow = 9.813 #maximum flow rate 
 bitConversion = 255 / maxFlow
 variableOn = False
@@ -298,14 +255,10 @@ if __name__ == "__main__":
                 hour = str(startTime)[11:13]
                 mins = str(startTime)[14:16]
                 fileNameLong = "Results/" + fileNameDate + "_" + hour + "-" + mins + ".csv"
-                fileNameShort = "ResultsCondensed/" + fileNameDate + "_" + hour + "-" + mins + ".csv"
 
                 f = open(fileNameLong, 'x', newline='')
-                r = open(fileNameShort, 'x', newline='')
                 writer = csv.writer(f)
-                writer2 = csv.writer(r)
                 writer.writerow(header)
-                writer2.writerow(header)
 
                 counter = 0
                 moving_average = 30
@@ -344,7 +297,7 @@ if __name__ == "__main__":
 
                 # close csv file
                 f.close()
-                r.close()
+
             if start == "n" or start == "N":
                 print("Session Ended")
                 ser.close()
