@@ -220,9 +220,14 @@ def startSerialConnection():
     try:
         ser = serial.Serial('COM15', 9600, timeout=1)
         return ser
+    except OSError as ae:
+        print("Likely cause: board not connected or wrong port selected({})".format(ae))
+        logFile.sendError("Likely cause: board not connected or wrong port selected ({})".format(ae))
+        exit(0)
     except Exception as e:
         print(e)
         logFile.sendError(e)
+        exit(0)
 
 #Start log file
 startTime = datetime.datetime.now()
