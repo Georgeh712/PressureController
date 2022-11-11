@@ -59,7 +59,7 @@ def data_handler(temp):
     #Pressure chart
     ax[0,0].scatter(len(pressureData)-1, pressureData[-1])
     ax[0,0].text(len(pressureDataMA)-1, pressureDataMA[-1], "{:.3f}".format(pressureDataMA[-1]))
-    ax[0,0].set_ylim((pMin*1.05),(pMax*1.05))
+    ax[0,0].set_ylim((pMin*0.95),(pMax*1.05))
 
     #Flow chart
     ax[1,0].scatter(len(mfcData)-1, mfcData[-1])
