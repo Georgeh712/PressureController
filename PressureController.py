@@ -59,7 +59,7 @@ def data_handler(temp):
     #Pressure chart
     ax[0,0].scatter(len(pressureData)-1, pressureData[-1])
     ax[0,0].text(len(pressureDataMA)-1, pressureDataMA[-1], "{:.3f}".format(pressureDataMA[-1]))
-    ax[0,0].set_ylim((pMin*1.05),(pMax*1.05))
+    ax[0,0].set_ylim((pMin*0.95),(pMax*1.05))
 
     #Flow chart
     ax[1,0].scatter(len(mfcData)-1, mfcData[-1])
@@ -108,9 +108,8 @@ def chart_gen(i):
         try:
             string = line.decode().strip()  # convert the byte string to a unicode string
             string2 = line2.decode().strip()
-            num = int(string) # convert the unicode string to an int
-            num2 = int(string2)
-            numMA = num
+            num = int(string) # Pressure - convert the unicode string to an int
+            num2 = int(string2) # Flow
 
             maxV = 3.271 #Maximum voltage for pins on board (INPUT USED, SHOULD IT BE OUTPUT?)
             bitNum = 4096 #Number of bits for analog input
@@ -118,11 +117,11 @@ def chart_gen(i):
             bitRatio = maxV/bitNum
 
             #Number Formatting
-            f = (num * (bitRatio))
+            f = (num * (bitRatio)) # Pressure
             f += offset
             f *= gain
-            f2 = (num2 * (bitRatio)) * flowMultiplier
-            fMA = (numMA * (bitRatio))
+            f2 = (num2 * (bitRatio)) * flowMultiplier #Flow
+            fMA = (num * (bitRatio))
             fMA += offset
             fMA *= gain
 
@@ -130,6 +129,7 @@ def chart_gen(i):
             dLength = len(sensorData)
             if dLength > moving_average:
                 fMA = calc_ma(fMA, moving_average)
+                f2 = calc_ma(f2, moving_average)
             
             pressureSafety(f)
 
@@ -218,11 +218,16 @@ def startMenu():
 
 def startSerialConnection():
     try:
-        ser = serial.Serial('COM14', 9600, timeout=1)
+        ser = serial.Serial('COM15', 9600, timeout=1)
         return ser
+    except OSError as ae:
+        print("Likely cause: board not connected or wrong port selected({})".format(ae))
+        logFile.sendError("Likely cause: board not connected or wrong port selected ({})".format(ae))
+        exit(0)
     except Exception as e:
         print(e)
         logFile.sendError(e)
+        exit(0)
 
 #Start log file
 startTime = datetime.datetime.now()
