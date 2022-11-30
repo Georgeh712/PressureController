@@ -1,4 +1,5 @@
 import os, shutil
+import nidaqmx
 import math
 import serial
 import time
@@ -15,8 +16,9 @@ plt.style.use('ggplot')
 
 #Controller for argon pneumatics system for level measurement
 
-maxPressure = 3.3 - 1.81 #DO NOT CHANGE (max - offset)
-prevEMA = 0.00
+maxPressure = 15 #DO NOT CHANGE (max - offset)
+prevEMAPressure = 0.00
+prevEMAFlow = 0.00
 
 #Insert data into csv file
 def insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight):
@@ -83,10 +85,13 @@ def data_handler(temp):
     ax[0,1].legend()
 
 #Moving average calculator
-def calc_ma(num, ma):
-    global prevEMA
+def calc_ma(num, ma, prevEMA, FP):
+    global prevEMAPressure, prevEMAFlow
     ema = (alpha*num) + ((1-alpha) * prevEMA)
-    prevEMA = ema
+    if FP:
+        prevEMAFlow = ema
+    else:
+        prevEMAPressure = ema
     return ema
 
 #Calculates weight based on rough dimension of tundish (output is only an estimate)
@@ -98,38 +103,41 @@ def weightCalc(height):
 
 #Charting loop - loops when recording and displaying results
 def chart_gen(i):
+    data = []
+    with nidaqmx.Task() as task:
+        task.ai_channels.add_ai_voltage_chan("Dev1/ai0")
+        task.ai_channels.add_ai_voltage_chan("Dev1/ai1")
+        data = data + task.read()
+        time.sleep(1)
+
     timeNow = datetime.datetime.now()
-    line = ser.readline()   # read a byte string
-    line2 = ser.readline() # read mfc
+    line = data[1]   # read a byte string
+    line2 = data[0] # read mfc
     temp = []
 
     #Chart loop
     if line and line2:
         try:
-            string = line.decode().strip()  # convert the byte string to a unicode string
-            string2 = line2.decode().strip()
-            num = int(string) # Pressure - convert the unicode string to an int
-            num2 = int(string2) # Flow
-
-            maxV = 3.271 #Maximum voltage for pins on board (INPUT USED, SHOULD IT BE OUTPUT?)
-            bitNum = 4096 #Number of bits for analog input
-            flowMultiplier = maxFlow/maxV
-            bitRatio = maxV/bitNum
+            num = line # Pressure - convert the unicode string to an int
+            num2 = line2 # Flow
 
             #Number Formatting
-            f = (num * (bitRatio)) # Pressure
+            f = num # Pressure
             f += offset
             f *= gain
-            f2 = (num2 * (bitRatio)) * flowMultiplier #Flow
-            fMA = (num * (bitRatio))
+
+            f2 = num2 #Flow
+            f2 = f2 * (15/5)
+
+            fMA = (num * (1))
             fMA += offset
             fMA *= gain
 
-            #Moving Average
+            """#Moving Average
             dLength = len(sensorData)
             if dLength > moving_average:
-                fMA = calc_ma(fMA, moving_average)
-                f2 = calc_ma(f2, moving_average)
+                fMA = calc_ma(fMA, moving_average, prevEMAPressure, False)
+                f2 = calc_ma(f2, moving_average, prevEMAFlow, True)"""
             
             pressureSafety(f)
 
@@ -142,12 +150,14 @@ def chart_gen(i):
             
             weight = weightCalc(height)
             
-            fInputValue = "{:.3f}".format(inputValue/bitConversion)
+            fInputValue = "{:.3f}".format(inputValue*(15/5))
 
             #Data printing to terminal, saving to csv and writing to arduino
             print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", fInputValue, "\t\t Depth: ", fheight, "\t\t Weight: ", weight)
             insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight)
-            writeToArd(str(inputValue))
+            with nidaqmx.Task() as task:
+                task.ao_channels.add_ao_voltage_chan("Dev1/ao0")
+                task.write(inputValue, auto_start=True)
             
             #Normal data storing
             data_handler(temp)
@@ -156,25 +166,18 @@ def chart_gen(i):
             print(e)
             logFile.sendError(e)
 
-#Write to arduino
-def writeToArd(x):
-    ser.write(x.encode())
-
 #Start chart animation
 def joiner(fig):
     return FuncAnimation(fig, chart_gen, interval=10)
 
 #Define variables for continous flow mode and variable flow mode
 def modePicker():
-    global initialInput, inputValue, inputHigh, inputLow, continuous  
+    global initialInput, inputValue, continuous  
     continuous = input("Continuous Flow: ")
-    continuous = float(continuous) * bitConversion
-    contFlow = continuous/bitConversion
-    inputHigh = continuous
-    inputLow = continuous
+    continuous = float(continuous) / (15/5)
     initialInput = continuous
     inputValue = initialInput
-    logFile.sendNotice("Continuous- InitialValue: " + str(contFlow) + " InputHigh: " + str(contFlow) + " InputLow: " + str(contFlow))
+    logFile.sendNotice("Continuous- InitialValue: " + str(continuous))
 
 def pressureSafety(pressure):
     if pressure > maxPressure:
@@ -216,30 +219,13 @@ def startMenu():
             print("Invalid Input - Try Again")
             startMenu()
 
-def startSerialConnection():
-    try:
-        ser = serial.Serial('COM15', 9600, timeout=1)
-        return ser
-    except OSError as ae:
-        print("Likely cause: board not connected or wrong port selected({})".format(ae))
-        logFile.sendError("Likely cause: board not connected or wrong port selected ({})".format(ae))
-        exit(0)
-    except Exception as e:
-        print(e)
-        logFile.sendError(e)
-        exit(0)
-
 #Start log file
 startTime = datetime.datetime.now()
 logFile = Log(str(startTime))
 
 #Initial Variables
-maxFlow = 9.813 #maximum flow rate 
-bitConversion = 255 / maxFlow
 continuous = 255
 initialInput = continuous
-switchHigh = 20
-switchLow = 30
 inputValue = initialInput
 inputHigh = continuous
 inputLow = continuous
@@ -267,8 +253,8 @@ if __name__ == "__main__":
                 counter = 0
                 moving_average = 30
                 alpha = (2/(moving_average + 1))
-                offset = -1.76                    # 1.81V is the output of the sensor at 1 atm - the pressure measures absolute 0-5bar so max is 4 bar gauge
-                gain = 1.254                        # How do we properly calculate this value?
+                offset = -2.025                  # 1.81V is the output of the sensor at 1 atm - the pressure measures absolute 0-5bar so max is 4 bar gauge
+                gain = 0.4                        # How do we properly calculate this value?
                 argonCorrection = 1.18
                 sensorData = []
                 timeData = []
@@ -289,22 +275,19 @@ if __name__ == "__main__":
                 ax[1,0].set_facecolor('#DEDEDE')
                 ax[1,1].set_facecolor('#DEDEDE')
 
-                #Start connection with Arduino
-                ser = startSerialConnection()
-
                 #Declare animation, show plot
                 ani = joiner(fig)
                 plt.show()
-
-                #Close serial connection to arduino
-                ser.close()
 
                 # close csv file
                 f.close()
 
             if start == "n" or start == "N":
                 print("Session Ended")
-                ser.close()
+                with nidaqmx.Task() as task:
+                    task.ao_channels.add_ao_voltage_chan("Dev1/ao0")
+                    task.write(0, auto_start=True)
+                logFile.closeFile()
                 exit(0)
 
         except Exception as e:
