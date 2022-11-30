@@ -22,3 +22,6 @@ class Log:
     def sendNotice(self, notice):
         timeNow = datetime.datetime.now()
         self.f.write(str(timeNow)[0:19] + " NOTICE:  " + str(notice) + "\n")
+    
+    def closeFile(self):
+        self.f.close()
