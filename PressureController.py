@@ -1,7 +1,6 @@
 import os, shutil
 import nidaqmx
 import math
-import serial
 import time
 import datetime
 import matplotlib.pyplot as plt
@@ -108,11 +107,11 @@ def chart_gen(i):
         task.ai_channels.add_ai_voltage_chan("Dev1/ai0")
         task.ai_channels.add_ai_voltage_chan("Dev1/ai1")
         data = data + task.read()
-        time.sleep(1)
+        time.sleep(0.5)
 
     timeNow = datetime.datetime.now()
     line = data[1]   # read a byte string
-    line2 = data[0] # read mfc
+    line2 = data[0] -0.06 # read mfc
     temp = []
 
     #Chart loop
@@ -133,11 +132,11 @@ def chart_gen(i):
             fMA += offset
             fMA *= gain
 
-            """#Moving Average
+            #Moving Average
             dLength = len(sensorData)
             if dLength > moving_average:
                 fMA = calc_ma(fMA, moving_average, prevEMAPressure, False)
-                f2 = calc_ma(f2, moving_average, prevEMAFlow, True)"""
+                #f2 = calc_ma(f2, moving_average, prevEMAFlow, True)
             
             pressureSafety(f)
 
