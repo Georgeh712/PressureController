@@ -50,6 +50,8 @@ def data_handler(temp):
 
     pMax = np.max(pressureData)
     pMin = np.min(pressureData)
+    fMax = np.max(mfcData)
+    fMin = np.min(mfcData)
 
     # plot
     ax[0,0].plot(pressureData, label="Pressure (Bar)")
@@ -65,7 +67,7 @@ def data_handler(temp):
     #Flow chart
     ax[1,0].scatter(len(mfcData)-1, mfcData[-1])
     ax[1,0].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
-    ax[1,0].set_ylim(0,12)
+    ax[1,0].set_ylim(fMin*0.95),(fMax*1.05))
     
     #Weight chart
     ax[0,1].scatter(len(weightData)-1, weightData[-1])
