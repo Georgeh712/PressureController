@@ -111,7 +111,7 @@ def chart_gen(i):
 
     timeNow = datetime.datetime.now()
     line = data[1]   # read a byte string
-    line2 = data[0] -0.06 # read mfc
+    line2 = data[0] - 0.071  # read mfc
     temp = []
 
     #Chart loop
