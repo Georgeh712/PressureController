@@ -1,0 +1,3 @@
+Log file started: 2022-11-14 11:38:04.489009
+2022-11-14 11:38:07 NOTICE:  Continuous- InitialValue: 2.0 InputHigh: 2.0 InputLow: 2.0
+2022-11-14 11:38:26 NOTICE:  MA: 30 Gain: 1.254 Offset: -1.76
