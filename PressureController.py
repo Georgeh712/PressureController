@@ -24,7 +24,7 @@ def insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight):
     sensorData.append(fMA)
     timeData.append(timeNow)
 
-    temp.extend((timeNow, num2, f2, num, f, fMA, inputValue, height, weight))
+    temp.extend((timeNow, num2, f2, num, f, fMA, inputValue*3, height, weight))
 
     writer.writerow(temp) # write to csv
 
@@ -178,7 +178,7 @@ def modePicker():
     continuous = float(continuous) / (15/5)
     initialInput = continuous
     inputValue = initialInput
-    logFile.sendNotice("Continuous- InitialValue: " + str(continuous))
+    logFile.sendNotice("Continuous- InitialValue: " + str(continuous*3))
 
 def pressureSafety(pressure):
     if pressure > maxPressure:
