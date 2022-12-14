@@ -67,7 +67,7 @@ def data_handler(temp):
     #Flow chart
     ax[1,0].scatter(len(mfcData)-1, mfcData[-1])
     ax[1,0].text(len(mfcData)-1, mfcData[-1], "{:.3f}".format(mfcData[-1]))
-    ax[1,0].set_ylim(fMin*0.95),(fMax*1.05))
+    ax[1,0].set_ylim((fMin*0.95),(fMax*1.05))
     
     #Weight chart
     ax[0,1].scatter(len(weightData)-1, weightData[-1])
@@ -112,6 +112,10 @@ def chart_gen(i):
         time.sleep(0.5)
 
     timeNow = datetime.datetime.now()
+    """timeNow = timeNow.time()"""
+    """date_time = datetime.datetime.strptime(time, "%H:%M:%S")"""
+    a_timedelta = timeNow - startTime
+    timeNow = a_timedelta.total_seconds()
     line = data[1]   # read a byte string
     line2 = data[0] - 0.071  # read mfc
     temp = []
