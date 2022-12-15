@@ -24,7 +24,7 @@ def insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight):
     sensorData.append(fMA)
     timeData.append(timeNow)
 
-    temp.extend((timeNow, num2, f2, num, f, fMA, inputValue, height, weight))
+    temp.extend((timeNow, num2, f2, num, f, fMA, inputValue*3, height, weight))
 
     writer.writerow(temp) # write to csv
 
@@ -112,10 +112,6 @@ def chart_gen(i):
         time.sleep(0.5)
 
     timeNow = datetime.datetime.now()
-    """timeNow = timeNow.time()"""
-    """date_time = datetime.datetime.strptime(time, "%H:%M:%S")"""
-    a_timedelta = timeNow - startTime
-    timeNow = a_timedelta.total_seconds()
     line = data[1]   # read a byte string
     line2 = data[0] - 0.071  # read mfc
     temp = []
@@ -182,7 +178,7 @@ def modePicker():
     continuous = float(continuous) / (15/5)
     initialInput = continuous
     inputValue = initialInput
-    logFile.sendNotice("Continuous- InitialValue: " + str(continuous))
+    logFile.sendNotice("Continuous- InitialValue: " + str(continuous*3))
 
 def pressureSafety(pressure):
     if pressure > maxPressure:
