@@ -259,7 +259,7 @@ if __name__ == "__main__":
                 writer.writerow(header)
 
                 heightfrombase = float(input("Height Above Base (m):"))
-
+                
                 counter = 0
                 moving_average = 30
                 alpha = (2/(moving_average + 1))
