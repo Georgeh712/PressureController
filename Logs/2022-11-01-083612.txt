@@ -1,2 +1,0 @@
-Log file started: 2022-11-01 08:36:12.542756
-2022-11-01 08:36:15 ERROR:  could not convert string to float: 'c'

@@ -1,3 +1,0 @@
-Log file started: 2022-12-07 09:33:00.745975
-2022-12-07 09:33:16 NOTICE:  Continuous- InitialValue: 0.6666666666666666
-2022-12-07 09:33:44 ERROR:  [Errno 22] Invalid argument: 'Results/leak\x14_09-33.csv'

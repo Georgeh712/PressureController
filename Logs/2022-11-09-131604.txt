@@ -1,2 +1,0 @@
-Log file started: 2022-11-09 13:16:04.660744
-2022-11-09 13:16:06 ERROR:  name 'ser' is not defined

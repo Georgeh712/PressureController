@@ -1,2 +1,0 @@
-Log file started: 2022-11-14 10:05:52.024655
-2022-11-14 10:06:13 ERROR:  could not convert string to float: 'retestSensorSealCold'
