@@ -156,7 +156,7 @@ def chart_gen(i):
             height = float((fMA*100000)/(1000*7*9.81))
             fheight = "{:.3f}".format(height)
             
-            weight = weightCalc(height)
+            weight = weightCalc(height, heightfrombase)
             
             fInputValue = "{:.3f}".format(inputValue*(15/5))
 
@@ -258,7 +258,7 @@ if __name__ == "__main__":
                 writer = csv.writer(f)
                 writer.writerow(header)
 
-                heightfrombase = str(input("Height Above Base (m):"))
+                heightfrombase = float(input("Height Above Base (m):"))
 
                 counter = 0
                 moving_average = 30
