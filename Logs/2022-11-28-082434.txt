@@ -1,0 +1,3 @@
+Log file started: 2022-11-28 08:24:34.814470
+2022-11-28 08:24:38 NOTICE:  Continuous- InitialValue: 2.0 InputHigh: 2.0 InputLow: 2.0
+2022-11-28 08:24:43 ERROR:  [Errno 17] File exists: 'Results/seal effectiveness test_08-24.csv'

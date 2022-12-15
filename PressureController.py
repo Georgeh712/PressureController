@@ -96,11 +96,18 @@ def calc_ma(num, ma, prevEMA, FP):
     return ema
 
 #Calculates weight based on rough dimension of tundish (output is only an estimate)
-def weightCalc(height):
-    areaTriangles = (height*(math.sin(0.203854)/math.sin(1.57-0.203854)))*height
+def weightCalc(height, heightfrombase):
+    ##Constant Height
+    ConstantareaTriangles = (heightfrombase*(math.sin(0.203854)/math.sin(1.57-0.203854)))*heightfrombase
+    Constantarea = ((1*(math.sin(0.349)/math.sin(1.57-0.349)))*1)+(0.34*1)
+    Constantvolume = ((ConstantareaTriangles+((0.508-0.05)*heightfrombase))*(9.625-0.05))+(Constantarea*heightfrombase)
+    Constantweight = Constantvolume * (7000/1000)
+    ##Varying Height
+    areaTriangles = ((height-heightfrombase)*(math.sin(0.203854)/math.sin(1.57-0.203854)))*(height-heightfrombase)
     area = ((1*(math.sin(0.349)/math.sin(1.57-0.349)))*1)+(0.34*1)
-    volume = ((areaTriangles+((0.508-0.05)*height))*(9.625-0.05))+(area*height)
-    return (volume*7000)/1000
+    volume = ((areaTriangles+((0.508-0.05)*(height-heightfrombase)))*(9.625-0.05))+(area*(height-heightfrombase))
+    weight = volume * (7000/1000)
+    return weight + Constantweight
 
 #Charting loop - loops when recording and displaying results
 def chart_gen(i):
@@ -155,7 +162,7 @@ def chart_gen(i):
 
             #Data printing to terminal, saving to csv and writing to arduino
             print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2, "\t\t Input: ", fInputValue, "\t\t Depth: ", fheight, "\t\t Weight: ", weight)
-            insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight)
+            insert_data(f, timeNow, temp, f2, num, num2, fMA, height+heightfrombase, weight)
             with nidaqmx.Task() as task:
                 task.ao_channels.add_ao_voltage_chan("Dev1/ao0")
                 task.write(inputValue, auto_start=True)
@@ -250,6 +257,8 @@ if __name__ == "__main__":
                 f = open(fileNameLong, 'x', newline='')
                 writer = csv.writer(f)
                 writer.writerow(header)
+
+                heightfrombase = str(input("Height Above Base (m):"))
 
                 counter = 0
                 moving_average = 30
