@@ -14,11 +14,10 @@ from multiprocessing import Process
 from pyparsing import nums
 plt.style.use('ggplot')
 
-
-
+##GRAPHS
 ##OUR DATA
 """fileName = ("Results/" + str(input("File Name: ")) + "_" + str(input("Hours: ") + "-" + str(input("Minutes: ") + ".csv")))"""
-fileName = "Results/s20real_11-38.csv"
+fileName = "Results/CasTemp3_14-59.csv"
 layout = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'MAPressureData', 'InputMFCValue', 'Height', 'Weight']
  
 df = pd.read_csv(fileName, sep = ',', names=layout)
@@ -46,24 +45,23 @@ WeightData = [float(x) for x in WeightData]
 
 
 ##BRITISH STEEL DATA
-##OUR DATA
 """fileName = ("Results/" + "British Steel/" + str(input("British Steel File Name: ")) + "_" + str(input("Hours: ") + "-" + str(input("Minutes: ") + ".csv")))"""
-fileNameBS = "Results/British Steel/grafana_data_export (8).csv"
+fileNameBS = "Results/British Steel/grafana_data_export (12).csv"
 layoutBS = ['Time', 'GrossWeight', 'NetWeight', 'TareWeight', 'CastingRate', 'Position']
  
-dff = pd.read_csv(fileNameBS, sep = ';', names=layoutBS)
-dff = dff[2:]
+dg = pd.read_csv(fileNameBS, sep = ';', names=layoutBS)
+dg = dg[2:]
 
-Date_TimeBS = dff["Time"]
-Date_TimeBS = [datetime.strptime(x, "%Y-%m-%d %H:%M:%S") for x in dff['Time']]
+Date_TimeBS = dg["Time"]
+Date_TimeBS = [datetime.strptime(x, "%Y-%m-%d %H:%M:%S") for x in dg['Time']]
 TimeDiffBS = [(x - StartTime).total_seconds() for x in Date_TimeBS]  
 
-WeightDataBS = dff["NetWeight"]  ##Calculate Pressure and Height from this
+WeightDataBS = dg["NetWeight"]  ##Calculate Pressure and Height from this
 WeightDataBS = [float(x) for x in WeightDataBS]
 
-HeightDataBS = [((-5.16996+sqrt(26.72848+1.4*x)/0.7)) for x in WeightDataBS]
+HeightDataBS = [((-5.16996+sqrt((26.72848+1.4*x)/0.7))) for x in WeightDataBS]
 
-MAPressureDataBS = [x*(1000*7*9.81)/100000 for x in HeightDataBS]
+"""MAPressureDataBS = [x*(1000*7*9.81)/100000 for x in HeightDataBS]"""
 
 
 ##PLOTTING
@@ -78,7 +76,7 @@ ax[1,0].plot(TimeDiff, MFCData)
 ax[0,1].plot(TimeDiff, WeightData)
 ax[1,1].plot(TimeDiff, HeightData)
 
-ax[0,0].plot(TimeDiffBS, MAPressureDataBS)
+"""ax[0,0].plot(TimeDiffBS, MAPressureDataBS)"""
 ax[0,1].plot(TimeDiffBS, WeightDataBS)
 ax[1,1].plot(TimeDiffBS, HeightDataBS)
 
@@ -97,5 +95,68 @@ ax[1,0].set_ylabel('Mass Flow (L/Min)')
 ax[0,1].set_ylabel('Weight (Tonnes)')
 ax[1,1].set_ylabel('Depth (m)')
 
-plt.show()
+"""plt.savefig("figures/" + str(input("Name of Figure: ") + ".pdf"))"""
+"""plt.show()"""
 
+
+#############################################################################################################################################
+##TABLE
+##Our Data
+dh = pd.read_csv(fileName, sep = ',', names=layout)
+dh = dh[((60*10)-1):]  #Change to end before last 10 minutes
+
+MFCData1 = dh["MFCData"]
+MFCData1 = [float(x) for x in MFCData]
+MAPressureData1 = dh["MAPressureData"]
+MAPressureData1 = [float(x) for x in MAPressureData]
+HeightData1 = dh["Height"]
+HeightData1 = [float(x) for x in HeightData]
+WeightData1 = dh["Weight"]
+WeightData1 = [float(x) for x in WeightData]
+
+
+##British steel Data
+##Needs to delete data pulled from outside of the dip start and dip end times
+di = pd.read_csv(fileNameBS, sep = ';', names=layoutBS)
+di = di[2:]
+
+Date_TimeBS = di["Time"]
+Date_TimeBS = [datetime.strptime(x, "%Y-%m-%d %H:%M:%S") for x in di['Time']]
+TimeDiffBS = [(x - StartTime).total_seconds() for x in Date_TimeBS] 
+
+WeightDataBS1 = di["NetWeight"]  ##Calculate Pressure and Height from this
+WeightDataBS1 = [float(x) for x in WeightDataBS1]
+HeightDataBS1 = [((-5.16996+sqrt((26.72848+1.4*x)/0.7))) for x in WeightDataBS1]
+MAPressureDataBS1 = [x*(1000*7*9.81)/100000 for x in HeightDataBS1]
+
+
+##Calculate standard deviation of initial pressure
+std_pressure = np.std(MAPressureData[60:120])
+##Calculate standard deviation of mass flow
+std_mass_flow = np.std(MFCData1)
+##Calculate variance of pressure
+var_pressure = np.var(MAPressureData1)
+var_pressureBS = np.var(MAPressureDataBS1)
+##Calculate variance of weight
+var_weight = np.var(WeightData1)
+var_weightBS = np.var(WeightDataBS1)
+##Calculate variance of height
+var_height = np.var(HeightData1)
+var_heightBS = np.var(HeightDataBS1)
+
+data = [['Property', 'Our Data', 'British Steel Data'],
+['standard deviation of initial pressure', std_pressure, 'N/A'],
+['standard deviation of mass flow', std_mass_flow, 'N/A'],
+['variance of pressure', var_pressure, var_pressureBS],
+['variance of weight', var_weight, var_weightBS],
+['variance of height', var_height, var_heightBS]]
+
+##Create the table
+fig2, ax2 = plt.subplots()
+table = plt.table(cellText=data, loc='center')
+table.scale(1,2)
+ax2.axis("off")
+fig2.tight_layout()
+
+
+plt.show()
