@@ -103,11 +103,12 @@ def weightCalc(height, heightfrombase):
     Constantvolume = ((ConstantareaTriangles+((0.508-0.05)*heightfrombase))*(9.625-0.05))+(Constantarea*heightfrombase)
     Constantweight = Constantvolume * (7000/1000)
     ##Varying Height
-    areaTriangles = ((height-heightfrombase)*(math.sin(0.203854)/math.sin(1.57-0.203854)))*(height-heightfrombase)
+    areaTriangles = ((height)*(math.sin(0.203854)/math.sin(1.57-0.203854)))*(height)
     area = ((1*(math.sin(0.349)/math.sin(1.57-0.349)))*1)+(0.34*1)
-    volume = ((areaTriangles+((0.508-0.05)*(height-heightfrombase)))*(9.625-0.05))+(area*(height-heightfrombase))
+    volume = ((areaTriangles+((0.508-0.05)*(height)))*(9.625-0.05))+(area*(height))
     weight = volume * (7000/1000)
-    return weight + Constantweight
+    weight = weight + Constantweight
+    return weight 
 
 #Charting loop - loops when recording and displaying results
 def chart_gen(i):
@@ -154,7 +155,7 @@ def chart_gen(i):
             fNumMa = "{:.3f}".format(fMA)
 
             height = float((fMA*100000)/(1000*7*9.81))
-            fheight = "{:.3f}".format(height)
+            fheight = "{:.3f}".format(height+heightfrombase)
             
             weight = weightCalc(height, heightfrombase)
             
@@ -259,7 +260,7 @@ if __name__ == "__main__":
                 writer.writerow(header)
 
                 heightfrombase = float(input("Height Above Base (m):"))
-
+                
                 counter = 0
                 moving_average = 30
                 alpha = (2/(moving_average + 1))
