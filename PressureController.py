@@ -291,7 +291,7 @@ if __name__ == "__main__":
                 plt.show()
 
                 # close csv file
-                f.close()
+                f.close() 
 
             if start == "n" or start == "N":
                 print("Session Ended")

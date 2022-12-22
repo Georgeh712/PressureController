@@ -19,7 +19,7 @@ plt.style.use('ggplot')
 ##GRAPHS
 ##OUR DATA
 """fileName = ("Results/" + str(input("File Name: ")) + "_" + str(input("Hours: ") + "-" + str(input("Minutes: ") + ".csv")))"""
-fileName = "Results/CasTemp3_14-59.csv"
+fileName = "Results/CasTemp4Trial_10-39.csv"
 layout = ['DateTime', 'RawMFCData', 'MFCData','RawPressureData', 'PressureData', 'MAPressureData', 'InputMFCValue', 'Height', 'Weight']
  
 df = pd.read_csv(fileName, sep = ',', names=layout)
@@ -33,6 +33,7 @@ DipStart = Date_Time[60*60]
 DipEnd = Date_Time[-60*60]
 CycleTime = (EndTime - StartTime).total_seconds()
 TimeDiff = [(x - StartTime).total_seconds() for x in Date_Time]
+TimeDiff = [(x - 45) for x in TimeDiff]     ##Time Delay
 
 MFCData = df["MFCData"]
 MFCData = [float(x) for x in MFCData]
@@ -41,16 +42,16 @@ MAPressureData = df["MAPressureData"]
 MAPressureData = [float(x) for x in MAPressureData]
 
 HeightData = df["Height"]
-HeightData = [float(x) + 0.6 for x in HeightData]
+HeightData = [float(x) + 0.52 for x in HeightData]      ##Height Offset
 
 WeightData = df["Weight"]
-WeightData = [float(x) + 27 for x in WeightData]
+WeightData = [float(x) + 23.4 for x in WeightData]      ##Weight Offset
 
 
 
 ##BRITISH STEEL DATA
 """fileName = ("Results/" + "British Steel/" + str(input("British Steel File Name: ")) + "_" + str(input("Hours: ") + "-" + str(input("Minutes: ") + ".csv")))"""
-fileNameBS = "Results/British Steel/grafana_data_export (12).csv"
+fileNameBS = "Results/British Steel/grafana_data_export (27).csv"
 layoutBS = ['Time', 'GrossWeight', 'NetWeight', 'TareWeight', 'CastingRate', 'Position']
  
 dg = pd.read_csv(fileNameBS, sep = ';', names=layoutBS)
@@ -88,6 +89,9 @@ ax[0,0].set_xlim([0, CycleTime])
 ax[1,0].set_xlim([0, CycleTime])
 ax[0,1].set_xlim([0, CycleTime])
 ax[1,1].set_xlim([0, CycleTime])
+
+ax[0,1].set_ylim([20, 40])
+ax[1,1].set_ylim([0.25, 1])
 
 ax[0,0].set_xlabel('Time (s)')
 ax[1,0].set_xlabel('Time (s)')
@@ -128,9 +132,12 @@ di["Time"] = [datetime.strptime(x, "%Y-%m-%d %H:%M:%S") for x in di['Time']]
 di = di[(di["Time"] >= DipStart) & (di["Time"] <= DipEnd)]
 
 
+
 WeightDataBS1 = di["NetWeight"]  
 WeightDataBS1 = [float(x) for x in WeightDataBS1]
-HeightDataBS1 = [((-5.16996+sqrt((26.72848+1.4*x)/0.7))) for x in WeightDataBS1]
+a = 0.20675966114731492
+b = 5.089351257804871
+HeightDataBS1 = [(-b+sqrt((b*b)+(4*a*x)))/(2*7*a) for x in WeightDataBS1]
 
 
 ##Calculate standard deviation of initial pressure
