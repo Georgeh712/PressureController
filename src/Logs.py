@@ -1,6 +1,7 @@
 import datetime
 import random
 
+
 class Log:
     def __init__(self, fileName):
         self.fileName = fileName
@@ -18,10 +19,12 @@ class Log:
     def sendError(self, error):
         timeNow = datetime.datetime.now()
         self.f.write(str(timeNow)[0:19] + " ERROR:  " + str(error) + "\n")
+        return error
 
     def sendNotice(self, notice):
         timeNow = datetime.datetime.now()
         self.f.write(str(timeNow)[0:19] + " NOTICE:  " + str(notice) + "\n")
-    
+        return notice
+
     def closeFile(self):
         self.f.close()
