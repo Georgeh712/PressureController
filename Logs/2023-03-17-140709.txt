@@ -1,0 +1,15 @@
+Log file started: 2023-03-17 14:07:09.670708
+2023-03-17 14:07:14 NOTICE:  Continuous- InitialValue: 2.0
+2023-03-17 14:07:19 NOTICE:  MA: 30 Gain: 0.4 Offset: -2.025
+2023-03-17 14:07:41 ERROR:  Device cannot be accessed.  Possible causes:
+Device is no longer present in the system.
+Device is not powered.
+Device is powered, but was temporarily without power.
+Device and/or chassis driver support may have been removed.
+Device is damaged.
+Ensure the device is properly connected and turned on. Ensure the device and/or chassis is supported in the current version of the driver. Check the device's status in NI MAX. Turn the computer off and on again. If you suspect that the device is damaged, contact National Instruments at ni.com/support.
+Device Specified: Dev1
+
+Task Name: _unnamedTask<1>
+
+Status Code: -201003
