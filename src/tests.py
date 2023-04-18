@@ -20,11 +20,11 @@ class TestLogs(unittest.TestCase):
 
     def test_send_error(self):
         self.assertEqual(self.test_logs.sendError("Test Error"),
-                         'Test Error', "Should return test error")
+                         'Test Error', "Should return \"Test Error\"")
 
     def test_send_notice(self):
         self.assertEqual(self.test_logs.sendNotice("Test Notice"),
-                         'Test Notice', "Should return test notice")
+                         'Test Notice', "Should return \"Test Notice\"")
 
     def tearDown(self):
         self.test_logs.closeFile()
