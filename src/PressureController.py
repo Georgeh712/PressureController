@@ -15,14 +15,11 @@ plt.style.use('ggplot')
 
 
 # Controller for argon pneumatics system for level measurement
-
 maxPressure = 15  # DO NOT CHANGE (max - offset)
 prevEMAPressure = 0.00
 prevEMAFlow = 0.00
 
 # Insert data into csv file
-
-
 def insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight):
     sensorData.append(fMA)
     timeData.append(timeNow)
@@ -32,8 +29,6 @@ def insert_data(f, timeNow, temp, f2, num, num2, fMA, height, weight):
     writer.writerow(temp)  # write to csv
 
 # Set data on subplots
-
-
 def data_handler(temp):
     # get data
     pressureData.popleft()
@@ -93,8 +88,6 @@ def data_handler(temp):
     ax[0, 1].legend()
 
 # Moving average calculator
-
-
 def calc_ma(num, ma, prevEMA, FP):
     global prevEMAPressure, prevEMAFlow
     ema = (alpha*num) + ((1-alpha) * prevEMA)
@@ -105,8 +98,6 @@ def calc_ma(num, ma, prevEMA, FP):
     return ema
 
 # Calculates weight based on rough dimension of tundish (output is only an estimate)
-
-
 def weightCalc(height, heightfrombase):
     # Constant Height
     ConstantareaTriangles = (
@@ -126,8 +117,6 @@ def weightCalc(height, heightfrombase):
     return weight
 
 # Charting loop - loops when recording and displaying results
-
-
 def chart_gen(i):
     data = []
     with nidaqmx.Task() as task:
@@ -195,14 +184,10 @@ def chart_gen(i):
             logFile.sendError(e)
 
 # Start chart animation
-
-
 def joiner(fig):
     return FuncAnimation(fig, chart_gen, interval=10)
 
 # Define variables for continous flow mode and variable flow mode
-
-
 def modePicker():
     global initialInput, inputValue, continuous
     continuous = input("Continuous Flow: ")
