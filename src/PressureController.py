@@ -1,6 +1,7 @@
 import os
 import shutil
 import nidaqmx
+import propar
 import math
 import time
 import datetime
@@ -280,7 +281,7 @@ if __name__ == "__main__":
                 alpha = (2/(moving_average + 1))
                 # 1.81V is the output of the sensor at 1 atm - the pressure measures absolute 0-5bar so max is 4 bar gauge
                 offset = -2.025
-                gain = 0.4                        # How do we properly calculate this value?
+                gain = 0.4                        
                 argonCorrection = 1.18
                 sensorData = []
                 timeData = []
