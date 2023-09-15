@@ -16,7 +16,7 @@ plt.style.use('ggplot')
 
 
 # Controller for argon pneumatics system for level measurement
-maxPressure = 15  # DO NOT CHANGE (max - offset)
+maxPressure = 5  # DO NOT CHANGE (max - offset)
 prevEMAPressure = 0.00
 prevEMAFlow = 0.00
 
@@ -125,10 +125,10 @@ def chart_gen(i):
         task.ai_channels.add_ai_voltage_chan("Dev1/ai1")
         data = data + task.read()
         time.sleep(0.5)
-
+    
     timeNow = datetime.datetime.now()
     line = data[1]   # read a byte string
-    line2 = data[0] - 0.071  # read mfc
+    line2 = data[0]  # read mfc
     temp = []
 
     # Chart loop
@@ -143,7 +143,7 @@ def chart_gen(i):
             f *= gain
 
             f2 = num2  # Flow
-            f2 = f2 * (15/5)
+            # f2 = f2 * (15/5)
 
             fMA = (num * (1))
             fMA += offset
@@ -166,7 +166,7 @@ def chart_gen(i):
 
             weight = weightCalc(height, heightfrombase)
 
-            fInputValue = "{:.3f}".format(inputValue*(15/5))
+            fInputValue = "{:.3f}".format(inputValue)
 
             # Data printing to terminal, saving to csv and writing to arduino
             print("Time: ", timeNow, "\t P: ", fNum, "\t PMA: ", fNumMa, "\t\t MFC", fNum2,
@@ -192,7 +192,11 @@ def joiner(fig):
 def modePicker():
     global initialInput, inputValue, continuous
     continuous = input("Continuous Flow: ")
-    continuous = float(continuous) / (15/5)
+    continuous = float(continuous)
+    if continuous > 5:
+        continuous = 5
+    if continuous < 0:
+        continuous = 0
     initialInput = continuous
     inputValue = initialInput
     logFile.sendNotice("Continuous- InitialValue: " + str(continuous*3))
@@ -226,7 +230,7 @@ def deleteRecords():
 def startMenu():
     while (True):
         choice = int(input(
-            "1: Run recorder\n"
+            "1: Run\n"
             "2: Exit\n"
             "9: Delete all logs and saved files\n"))
         if choice == 1:
@@ -249,7 +253,7 @@ if __name__ == "__main__":
     logFile = Log(str(startTime))
 
     # Initial Variables
-    continuous = 255
+    continuous = 0
     initialInput = continuous
     inputValue = initialInput
     inputHigh = continuous
@@ -259,6 +263,7 @@ if __name__ == "__main__":
     while (True):
         print("\nProgram Started...\n")
         try:
+            # bronk_flow_controller = propar.instrument()
             start = startMenu()
             if start == "y" or start == "Y":
                 modePicker()
@@ -280,9 +285,9 @@ if __name__ == "__main__":
                 moving_average = 30
                 alpha = (2/(moving_average + 1))
                 # 1.81V is the output of the sensor at 1 atm - the pressure measures absolute 0-5bar so max is 4 bar gauge
-                offset = -2.025
-                gain = 0.4                        
-                argonCorrection = 1.18
+                offset = -2
+                gain = 0.5
+                argonCorrection = 0 #1.18
                 sensorData = []
                 timeData = []
                 temp = []
